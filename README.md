@@ -1,2 +1,2 @@
 # Assembly
-Single pass assembler
+Two pass assembler
