@@ -20,7 +20,7 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
-    <ProjectGuid>{F698CA84-D54B-493B-99C2-03106F9F4C15}</ProjectGuid>
+    <ProjectGuid>{8B1ADF36-6EC8-44E4-BA33-851B436A4D5A}</ProjectGuid>
     <RootNamespace>Assembly</RootNamespace>
     <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
@@ -116,10 +116,30 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="helpers.c" />
-    <ClCompile Include="main.c" />
+    <ClInclude Include="constants.h" />
+    <ClInclude Include="constants_helper.h" />
+    <ClInclude Include="file_reader.h" />
+    <ClInclude Include="helpers.h" />
+    <ClInclude Include="parser_helpers.h" />
+    <ClInclude Include="parser_pars.h" />
+    <ClInclude Include="sections.h" />
+    <ClInclude Include="string_helpers.h" />
+    <ClInclude Include="string_model.h" />
+    <ClInclude Include="symbol_table.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="constants_helper.c" />
+    <ClCompile Include="file_reader.c" />
+    <ClCompile Include="helpers.c" />
+    <ClCompile Include="main.c" />
+    <ClCompile Include="parser_helpers.c" />
+    <ClCompile Include="parser_pars.c" />
+    <ClCompile Include="sections.c" />
+    <ClCompile Include="string_helpers.c" />
+    <ClCompile Include="string_model.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="test_hi.s" />
     <None Include="test_hw.s" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

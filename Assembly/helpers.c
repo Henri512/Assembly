@@ -1,4 +1,5 @@
 #include <sys/stat.h>
+#include "helpers.h"
 
 /*
  * Check if a file exist using fopen() function
