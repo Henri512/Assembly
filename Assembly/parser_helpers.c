@@ -25,8 +25,8 @@ char *getTokenFromLine(char *line)
 	token = strtok(line, "@");
 	token = strtok(line, ";");
 	token = strtok(line, "\n");
-	token = leftTrim(token, " ");
-	token = rightTrim(token, " ");
+	token = leftTrim(token, NULL);
+	token = rightTrim(token, NULL);
 	return token;
 }
 
@@ -39,5 +39,53 @@ char isValidToken(char *token)
 {
 	return token && strlen(token) > 0 && token[0] != '#' && token[0] != '@'
 		&& token[0] != ';' && token[0] != '\n';
+}
+
+TokenList *getInstructionsTokens(char *token)
+{
+	TokenList *tokenList;
+	const char *delimiter = " ";
+	char *tok;
+	char **tokens = NULL;
+	int i = 0, j = 0;
+	tokenList = (TokenList*)malloc(sizeof(TokenList));
+	if (tokenList == NULL)
+	{
+		printf("Greska u alokaciji memorije! Kraj izvrsavanja!\n\r");
+		exit(-1);
+	}
+
+	tokens = (char**)malloc(sizeof(char*) * 100);
+	if (tokens == NULL)
+	{
+		printf("Greska u alokaciji memorije! Kraj izvrsavanja!\n\r");
+		exit(-1);
+	}
+
+	// get the first token 
+	tok = strtok(token, delimiter);
+
+	// walk through other tokens
+	while (tok != NULL)
+	{
+		tokens[i++] = tok;
+		tok = strtok(NULL, delimiter);
+	}
+
+	tokenList->tokens = (char**)malloc(sizeof(char*)*i);
+	if (tokenList->tokens == NULL)
+	{
+		printf("Greska u alokaciji memorije! Kraj izvrsavanja!\n\r");
+		exit(-1);
+	}
+	while (j < i)
+	{
+		tokenList->tokens[j] = tokens[j];
+		j++;
+	}
+	tokenList->size = j;
+
+	free(tokens);
+	return tokenList;
 }
 

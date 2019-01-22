@@ -2,6 +2,8 @@
 #include "parser_helpers.h"
 #include "string_helpers.h"
 #include "constants_helper.h"
+#include "section_helpers.h"
+#include "directives.h"
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -11,6 +13,11 @@ void executeFirstPass(SymbolTableEntry *symbolTableEntry, SectionsCollection *se
 	FILE *inputFile = getInputFile(inputFilePath);
 	const size_t line_size = 100;
 	char *line = (char*)malloc(line_size);
+	if (line == NULL)
+	{
+		printf("Greska u alokaciji memorije! Kraj izvrsavanja!\n\r");
+		exit(-1);
+	}
 
 	while (fgets(line, line_size, inputFile) != NULL)
 	{
@@ -43,9 +50,13 @@ void parseTokenFirstPass(SymbolTableEntry *symbolTableList, SectionsCollection *
 	{
 		parseSection(sectionsCollection, token);
 	}
-	else if (token[strlen(token) - 1] == ':')
+	else if (isTokenLabel(token))
 	{
 		parseLabel(symbolTableList, sectionsCollection, token);
+	}
+	else if (isTokenDirective(token))
+	{
+		parseDirective(symbolTableList, sectionsCollection, token);
 	}
 	else
 	{
@@ -58,6 +69,11 @@ void parseSection(SectionsCollection *sectionsCollection, char *token)
 {
 	int tokenLength = strlen(token);
 	char *section = (char*)malloc(tokenLength - 8);
+	if (section == NULL)
+	{
+		printf("Greska u alokaciji memorije! Kraj izvrsavanja!\n\r");
+		exit(-1);
+	}
 	if (section)
 	{
 		strncpy(section, token + 9, tokenLength - 7);
@@ -100,27 +116,104 @@ void parseSection(SectionsCollection *sectionsCollection, char *token)
 		}
 		else
 		{
-			printf("\tGreska u parsiranju %s naredbe!\n\r\tSekcija %s nije validna, kraj asembliranja!", token, section);
+			printf("\tGreska u parsiranju %s naredbe!\n\r\tSekcija %s nije validna, kraj asembliranja!\n\r", token, section);
 			exit(-1);
 		}
+		initializeSectionIfEmpty(sectionsCollection, 0, 0, 0);
 	}
 }
 
 void parseLabel(SymbolTableEntry *symbolTableList, SectionsCollection *sectionsCollection, char *token)
 {
-	int tokenLength = strlen(token);
-	char *label = (char*)malloc(tokenLength);
 	SymbolTableEntry *newSymbolTableEntry = NULL;
-	strncpy(label, token, tokenLength - 1);
-	label[tokenLength - 1] = '\n';
+	int labelLength = 0, labelTokenSize = 0, tokenLength = strlen(token), offset = 0;
+	char *label;
 
+	// slucaj kad je prazna labela na liniji
+	if (token[tokenLength - 1] == ':')
+	{
+		label = (char*)malloc(tokenLength);
+		if (label == NULL)
+		{
+			printf("Greska u alokaciji memorije! Kraj izvrsavanja!\n\r");
+			exit(-1);
+		}
+
+		strncpy(label, token, tokenLength - 1);
+		label[tokenLength - 1] = '\n';
+	}
+	// slucaj kad labela ima i sadrzaj na istoj liniji
+	else
+	{
+		labelLength = strcspn(token, ":") + 1;
+		label = (char*)malloc(labelLength);
+		int labelTokenLength = tokenLength - labelLength - 1;
+		if (label == NULL)
+		{
+			printf("Greska u alokaciji memorije! Kraj izvrsavanja!\n\r");
+			exit(-1);
+		}
+
+		strncpy(label, token, labelLength - 1);
+		label[labelLength - 2] = '\n';
+
+		char *labelContentToken = (char*)malloc(sizeof(char) * labelTokenLength);
+		if (labelContentToken == NULL)
+		{
+			printf("Greska u alokaciji memorije! Kraj izvrsavanja!\n\r");
+			exit(-1);
+		}
+		strncpy(labelContentToken, token + labelLength, labelTokenLength);
+
+		parseTokenFirstPass(symbolTableList, sectionsCollection, labelContentToken);
+	}
+
+	offset = sectionsCollection->textDataSection ? sectionsCollection->textDataSection->size : 0;
+	
+	// dodavanje labele u tabelu simbola
 	if (symbolTableList == NULL)
 	{
-		symbolTableList = makeSymbolTableEntry(label, sectionsCollection->currentSection, 0, 0);
+		symbolTableList = makeSymbolTableEntry(label, sectionsCollection->currentSection, offset, 0);
 	}
 	else
 	{
-		SymbolTableEntry *newSymbolTableEntry = makeSymbolTableEntry(label, sectionsCollection->currentSection, 0, symbolTableList->num + 1);
+		SymbolTableEntry *newSymbolTableEntry = makeSymbolTableEntry(label, sectionsCollection->currentSection, offset, symbolTableList->num + 1);
 		symbolTableList->next = newSymbolTableEntry;
+	}
+}
+
+void parseDirective(SymbolTableEntry *symbolTableList, SectionsCollection *sectionsCollection, char *token)
+{
+	if (startsWith(GLOBALDIRECTIVE, token))
+	{
+		// nista se ne radi u prvom prolazu
+	}
+	else if (startsWith(ASCIZDIRECTIVE, token))
+	{
+		parseAsciiDirectives(token, 1, sectionsCollection);
+	}
+	else if (startsWith(ASCIIDIRECTIVE, token))
+	{
+		parseAsciiDirectives(token, 0, sectionsCollection);
+	}
+	else if (startsWith(CHARDIRECTIVE, token))
+	{
+		parseCharWordLongDirectives(token, sectionsCollection, CHARSIZE);
+	}
+	else if (startsWith(WORDDIRECRTIVE, token))
+	{
+		parseCharWordLongDirectives(token, sectionsCollection, WORDSIZE);
+	}
+	else if (startsWith(LONGDIRECTIVE, token))
+	{
+		parseCharWordLongDirectives(token, sectionsCollection, LONGSIZE);
+	}
+	else if (startsWith(ALIGNDIRECTIVE, token))
+	{
+		parseAlignDirective(token, sectionsCollection);
+	}
+	else if (startsWith(SKIPDIRECTIVE, token))
+	{
+		parseSkipDirective(token, sectionsCollection);
 	}
 }

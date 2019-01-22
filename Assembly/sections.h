@@ -24,6 +24,7 @@ typedef struct relocationData
 {
 	char sectionType;
 	int offset;
+	int size;
 	char relocationType;
 	struct relocationData *next;
 } RelocationData;
@@ -86,3 +87,7 @@ typedef struct sectionsCollection
 SectionsCollection* getEmptySectionsCollection();
 
 void freeSectionsCollection(SectionsCollection *sectionsCollection);
+
+void addToCurrentCollectionsCount(SectionsCollection *sectionsCollection, int size);
+
+int getCurrentCollectionsCount(SectionsCollection *sectionsCollection);

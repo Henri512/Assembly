@@ -45,6 +45,12 @@
     <ClInclude Include="constants_helper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="section_helpers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="directives.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="file_reader.c">
@@ -72,6 +78,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="constants_helper.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="section_helpers.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="directives.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

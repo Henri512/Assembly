@@ -2,7 +2,14 @@
 
 .global main, print
 
-.text2
+.data
+mbegin:	.long mdata		# pokazuje na pocetak niza
+mbound:	.long mend		# pokazuje na kraj niza
+mdata:	.char 'H', 'e', 'l', 'l', 'o', 0x2c, 0x20, 'w', 'o', 'r', 'l', 'd', '.', '\n'	# niz za ispis
+mend:	.skip 3			# kraj niza
+output: .long 0x1000		# adresa za stampanje na standardni izlaz
+
+.text
 main:				# pocetak programa
 	sub r2, r2		# r2 = 0
 	ldr r3, r2, mbegin	# r3 = mdata, pocetak niza za ispis
@@ -12,13 +19,6 @@ main:				# pocetak programa
 	call print		# poziv print
 	add sp, 8		# skidanje sa steka
 
-.data2
-mbegin:	.long mdata		# pokazuje na pocetak niza
-mbound:	.long mend		# pokazuje na kraj niza
-mdata:	.char 'H', 'e', 'l', 'l', 'o', 0x2c, 0x20, 'w', 'o', 'r', 'l', 'd', '.', '\n'	# niz za ispis
-mend:	.skip 3			# kraj niza
-
-.text1
 print:	
 	push r11		# cuvanje koriscenih registara na steku
 	push r12		# 
@@ -44,8 +44,5 @@ exit:	pop r15			# skidanje starih vrednosti registara sa steka
 	pop r12			# 
 	pop r11			# 
 	ret			# povratak iz funkcije
-
-.data1
-output: .long 0x1000		# adresa za stampanje na standardni izlaz
 
 .end main

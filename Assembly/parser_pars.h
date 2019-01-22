@@ -8,3 +8,5 @@ void parseTokenFirstPass(SymbolTableEntry *symbolTableEntry, SectionsCollection 
 void parseSection(SectionsCollection *sectionsCollection, char *token);
 
 void parseLabel(SymbolTableEntry *symbolTableEntry, SectionsCollection *sectionsCollection, char *token);
+
+void parseDirective(SymbolTableEntry *symbolTableList, SectionsCollection *sectionsCollection, char *token);

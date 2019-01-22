@@ -8,13 +8,14 @@ SymbolTableEntry* makeSymbolTableEntry(char* name, char sectionType, int offset,
 	SymbolTableEntry *symbolTableEntry;
 	if (!name || name == "")
 	{
-		printf("Naziv labele ne moze biti prazan!");
+		printf("Naziv labele ne moze biti prazan!\n\r");
 		exit(-1);
 	}
 
 	symbolTableEntry = malloc(sizeof(SymbolTableEntry));
 	if (!symbolTableEntry)
 	{
+		printf("Greska u alokaciji memorije! Kraj izvrsavanja!\n\r");
 		exit(-1);
 	}
 
@@ -43,7 +44,7 @@ SymbolTableEntry* getSymbolTableEntryByIndex(SymbolTableEntry* list, int index)
 
 	if (!list->next && counter < index)
 	{
-		printf("Doslo se do kraja liste, element sa zadatim indeksom ne postoji!");
+		printf("Doslo se do kraja liste, element sa zadatim indeksom ne postoji!\n\r");
 		exit(-1);
 	}
 	else
@@ -84,6 +85,7 @@ RelocationData* makeRelocationData(char sectionType, int offset, char relocation
 	RelocationData *relocationData = (RelocationData*)malloc(sizeof(RelocationData));
 	if (!relocationData)
 	{
+		printf("Greska u alokaciji memorije! Kraj izvrsavanja!\n\r");
 		exit(-1);
 	}
 
@@ -111,7 +113,7 @@ RelocationData* getRelocationDataByIndex(RelocationData* list, int index)
 
 	if (!list->next && counter < index)
 	{
-		printf("Doslo se do kraja liste, element sa zadatim indeksom ne postoji!");
+		printf("Doslo se do kraja liste, element sa zadatim indeksom ne postoji!\n\r");
 		exit(-1);
 	}
 	else
@@ -153,6 +155,7 @@ SectionContent * makeSectionContent(char * content, int size)
 	sectionContent = malloc(sizeof(SectionContent));
 	if (!sectionContent)
 	{
+		printf("Greska u alokaciji memorije! Kraj izvrsavanja!\n\r");
 		exit(-1);
 	}
 
@@ -179,7 +182,7 @@ SectionContent* getSectionContentByIndex(SectionContent* list, int index)
 
 	if (!list->next && counter < index)
 	{
-		printf("Doslo se do kraja liste, element sa zadatim indeksom ne postoji!");
+		printf("Doslo se do kraja liste, element sa zadatim indeksom ne postoji!\n\r");
 		exit(-1);
 	}
 	else
@@ -219,6 +222,7 @@ SectionData* makeSectionData(int index, int start, int size, SectionContent *con
 	SectionData *sectionData = (SectionData*)malloc(sizeof(SectionData));
 	if (!sectionData)
 	{
+		printf("Greska u alokaciji memorije! Kraj izvrsavanja!\n\r");
 		exit(-1);
 	}
 
@@ -247,7 +251,7 @@ SectionData* getSectionDataByIndex(SectionData* list, int index)
 
 	if (!list->next && counter < index)
 	{
-		printf("Doslo se do kraja liste, element sa zadatim indeksom ne postoji!");
+		printf("Doslo se do kraja liste, element sa zadatim indeksom ne postoji!\n\r");
 		exit(-1);
 	}
 	else
@@ -285,10 +289,17 @@ void freeSectionDataList(SectionData* list)
 SectionsCollection* getEmptySectionsCollection()
 {
 	SectionsCollection *newSectionsCollection = (SectionsCollection*)malloc(sizeof(SectionsCollection));
-	if (newSectionsCollection == NULL)
+	if (!newSectionsCollection)
 	{
+		printf("Greska u alokaciji memorije! Kraj izvrsavanja!\n\r");
 		exit(-1);
 	}
+	newSectionsCollection->bssDataSection = NULL;
+	newSectionsCollection->dataDataSection = NULL;
+	newSectionsCollection->relocationDataSection = NULL;
+	newSectionsCollection->roDataSection = NULL;
+	newSectionsCollection->textDataSection = NULL;
+
 	return newSectionsCollection;
 }
 
@@ -303,4 +314,86 @@ void freeSectionsCollection(SectionsCollection* sectionsCollection)
 		free(sectionsCollection->textDataSection);
 		free(sectionsCollection);
 	}
+}
+
+void addToCurrentCollectionsCount(SectionsCollection *sectionsCollection, int size)
+{
+	switch (sectionsCollection->currentSection)
+	{
+	case Uninitialized:
+		
+		break;
+	case Text:
+		sectionsCollection->textDataSection->size += size;
+		break;
+	case RoData:
+		sectionsCollection->roDataSection->size += size;
+		break;
+	case Data:
+		sectionsCollection->dataDataSection->size += size;
+		break;
+	case Bss:
+		sectionsCollection->bssDataSection->size += size;
+		break;
+	case SymTab:
+
+		break;
+	case RelText:
+
+		break;
+	case RelData:
+		sectionsCollection->relocationDataSection->size += size;
+		break;
+	case Debug:
+
+		break;
+	case StrTab:
+
+		break;
+	default:
+
+		break;
+	}
+}
+
+int getCurrentCollectionsCount(SectionsCollection *sectionsCollection)
+{
+	int counter = 0;
+	switch (sectionsCollection->currentSection)
+	{
+	case Uninitialized:
+
+		break;
+	case Text:
+		counter = sectionsCollection->textDataSection->size;
+		break;
+	case RoData:
+		counter = sectionsCollection->roDataSection->size;
+		break;
+	case Data:
+		counter = sectionsCollection->dataDataSection->size;
+		break;
+	case Bss:
+		counter = sectionsCollection->bssDataSection->size;
+		break;
+	case SymTab:
+
+		break;
+	case RelText:
+
+		break;
+	case RelData:
+		counter = sectionsCollection->relocationDataSection->size;
+		break;
+	case Debug:
+
+		break;
+	case StrTab:
+
+		break;
+	default:
+
+		break;
+	}
+	return counter;
 }

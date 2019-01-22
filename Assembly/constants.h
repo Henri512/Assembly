@@ -1,7 +1,19 @@
 ﻿#pragma once
 #define ENDDIRECTIVE ".end"
-#define GLOBALDIRECTIVE ".globl"
+#define GLOBALDIRECTIVE ".global"
 #define SECTIONDIRECTIVE ".section"
+#define ASCIZDIRECTIVE ".asciz"
+#define ASCIIDIRECTIVE ".ascii"
+
+#define CHARDIRECTIVE ".char"
+#define WORDDIRECRTIVE ".word"
+#define LONGDIRECTIVE ".long"
+#define ALIGNDIRECTIVE ".align"
+#define SKIPDIRECTIVE ".skip"
+
+#define CHARSIZE 1
+#define WORDSIZE 2
+#define LONGSIZE 4
 
 enum Sections { Uninitialized, Text, RoData, Data, Bss, SymTab, RelText, RelData, Debug, StrTab };
 
