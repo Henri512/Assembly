@@ -4,11 +4,12 @@
 #include "constants_helper.h"
 #include "section_helpers.h"
 #include "directives.h"
+#include "instructions.h"
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
 
-void executeFirstPass(SymbolTableEntry *symbolTableEntry, SectionsCollection *sectionsCollection, char *inputFilePath)
+void executeFirstPass(SymbolTableEntryList *symbolTableEntryList, SectionsCollection *sectionsCollection, char *inputFilePath)
 {
 	FILE *inputFile = getInputFile(inputFilePath);
 	const size_t line_size = 100;
@@ -22,19 +23,23 @@ void executeFirstPass(SymbolTableEntry *symbolTableEntry, SectionsCollection *se
 	while (fgets(line, line_size, inputFile) != NULL)
 	{
 		printf("In %s section:\n\r", getSectionValue(sectionsCollection->currentSection));
-		char *token = getTokenFromLine(line);
-		if (isEndToken(token))
-		{
-			printf("\tDoslo se do .end direktive. Kraj prvog prolaza.");
-			break;
-		}
-		else if (!isValidToken(token))
-		{
-			printf("\tNaredba %s nije validna, kraj asembliranja!", token);
-			exit(-1);
-		}
 
-		parseTokenFirstPass(symbolTableEntry, sectionsCollection, token);
+		char *token = getTokenFromLine(line);
+		if (!isTokenComment(token) && !isTokenEmptyLine(token))
+		{
+			if (isEndToken(token))
+			{
+				printf("\tDoslo se do .end direktive. Kraj prvog prolaza.");
+				break;
+			}
+			else if (!isValidToken(token))
+			{
+				printf("\tNaredba %s nije validna, kraj asembliranja!", token);
+				exit(-1);
+			}
+
+			parseTokenFirstPass(symbolTableEntryList, sectionsCollection, token);
+		}
 	}
 
 	fclose(inputFile);
@@ -44,19 +49,24 @@ void executeFirstPass(SymbolTableEntry *symbolTableEntry, SectionsCollection *se
 	}
 }
 
-void parseTokenFirstPass(SymbolTableEntry *symbolTableList, SectionsCollection *sectionsCollection, char *token)
+void *parseTokenFirstPass(SymbolTableEntryList *symbolTableEntryList, SectionsCollection *sectionsCollection, char *token)
 {
-	if (startsWith(SECTIONDIRECTIVE, token))
+	char instructionValue, sectionValue;
+	if ((sectionValue = getTokenSectionValue(token)) > -1)
 	{
-		parseSection(sectionsCollection, token);
+		parseSection(sectionsCollection, sectionValue);
 	}
 	else if (isTokenLabel(token))
 	{
-		parseLabel(symbolTableList, sectionsCollection, token);
+		parseLabel(symbolTableEntryList, sectionsCollection, token);
 	}
 	else if (isTokenDirective(token))
 	{
-		parseDirective(symbolTableList, sectionsCollection, token);
+		parseDirective(symbolTableEntryList, sectionsCollection, token);
+	}
+	else if ((instructionValue = getTokenInstructionValue(token)) > -1)
+	{
+		parseInstruction(symbolTableEntryList, sectionsCollection, token);
 	}
 	else
 	{
@@ -65,68 +75,17 @@ void parseTokenFirstPass(SymbolTableEntry *symbolTableList, SectionsCollection *
 }
 
 // enum Sections { Text, RoData, Data, Bss, SymTab, RelText, RelData, Debug, StrTab };
-void parseSection(SectionsCollection *sectionsCollection, char *token)
+void parseSection(SectionsCollection *sectionsCollection, char section)
 {
-	int tokenLength = strlen(token);
-	char *section = (char*)malloc(tokenLength - 8);
-	if (section == NULL)
-	{
-		printf("Greska u alokaciji memorije! Kraj izvrsavanja!\n\r");
-		exit(-1);
-	}
-	if (section)
-	{
-		strncpy(section, token + 9, tokenLength - 7);
-		section[tokenLength - 7] = '\n';
-		if (strcmp(section, "\".text\"") == 0)
-		{
-			sectionsCollection->currentSection = Text;
-		}
-		else if (strcmp(section, "\".rodata\"") == 0)
-		{
-			sectionsCollection->currentSection = RoData;
-		}
-		else if (strcmp(section, "\".data\"") == 0)
-		{
-			sectionsCollection->currentSection = Data;
-		}
-		else if (strcmp(section, "\".bss\"") == 0)
-		{
-			sectionsCollection->currentSection = Bss;
-		}
-		else if (strcmp(section, "\".symtab\"") == 0)
-		{
-			sectionsCollection->currentSection = SymTab;
-		}
-		else if (strcmp(section, "\".reltext\"") == 0)
-		{
-			sectionsCollection->currentSection = RelText;
-		}
-		else if (strcmp(section, "\".reldata\"") == 0)
-		{
-			sectionsCollection->currentSection = RelData;
-		}
-		else if (strcmp(section, "\".debug\"") == 0)
-		{
-			sectionsCollection->currentSection = Debug;
-		}
-		else if (strcmp(section, "\".strtab\"") == 0)
-		{
-			sectionsCollection->currentSection = StrTab;
-		}
-		else
-		{
-			printf("\tGreska u parsiranju %s naredbe!\n\r\tSekcija %s nije validna, kraj asembliranja!\n\r", token, section);
-			exit(-1);
-		}
-		initializeSectionIfEmpty(sectionsCollection, 0, 0, 0);
-	}
+	sectionsCollection->currentSection = section;
+	initializeSectionIfEmpty(sectionsCollection, 0, 0, 0);
 }
 
-void parseLabel(SymbolTableEntry *symbolTableList, SectionsCollection *sectionsCollection, char *token)
+// strncpy(dest, src + beginIndex, endIndex - beginIndex);
+void *parseLabel(SymbolTableEntryList *symbolTableEntryList, SectionsCollection *sectionsCollection, char *token)
 {
 	SymbolTableEntry *newSymbolTableEntry = NULL;
-	int labelLength = 0, labelTokenSize = 0, tokenLength = strlen(token), offset = 0;
+	int labelLength = 0, tokenLength = strlen(token), offset = 0;
 	char *label;
 
 	// slucaj kad je prazna labela na liniji
@@ -140,46 +99,58 @@ void parseLabel(SymbolTableEntry *symbolTableList, SectionsCollection *sectionsC
 		}
 
 		strncpy(label, token, tokenLength - 1);
-		label[tokenLength - 1] = '\n';
+		label[tokenLength - 1] = '\0';
+
+		addLabelToSymbolTableList(symbolTableEntryList, sectionsCollection, label);
 	}
 	// slucaj kad labela ima i sadrzaj na istoj liniji
 	else
 	{
 		labelLength = strcspn(token, ":") + 1;
-		label = (char*)malloc(labelLength);
-		int labelTokenLength = tokenLength - labelLength - 1;
+		label = (char*)calloc(labelLength, sizeof(char));
+		int labelTokenLength = tokenLength - labelLength + 1;
 		if (label == NULL)
 		{
 			printf("Greska u alokaciji memorije! Kraj izvrsavanja!\n\r");
 			exit(-1);
 		}
 
-		strncpy(label, token, labelLength - 1);
-		label[labelLength - 2] = '\n';
+		strncpy(label, token, labelLength);
+		label[labelLength - 1] = '\0';
 
-		char *labelContentToken = (char*)malloc(sizeof(char) * labelTokenLength);
+		char *labelContentToken = (char*)calloc(labelTokenLength, sizeof(char));
 		if (labelContentToken == NULL)
 		{
 			printf("Greska u alokaciji memorije! Kraj izvrsavanja!\n\r");
 			exit(-1);
 		}
 		strncpy(labelContentToken, token + labelLength, labelTokenLength);
+		labelContentToken[labelTokenLength - 1] = '\0';
 
-		parseTokenFirstPass(symbolTableList, sectionsCollection, labelContentToken);
+		labelContentToken = leftTrim(labelContentToken, "\t ");
+		addLabelToSymbolTableList(symbolTableEntryList, sectionsCollection, label);
+
+		parseTokenFirstPass(symbolTableEntryList, sectionsCollection, labelContentToken);
 	}
+}
 
-	offset = sectionsCollection->textDataSection ? sectionsCollection->textDataSection->size : 0;
-	
+void *addLabelToSymbolTableList(SymbolTableEntryList *symbolTableEntryList, SectionsCollection *sectionsCollection, char *label)
+{
+	int offset = getCurrentCollectionsCount(sectionsCollection);
+	SymbolTableEntry *newSymbolTableEntry = makeSymbolTableEntry(label, sectionsCollection->currentSection, offset);
+
+	addSymbolTableEntry(symbolTableEntryList, newSymbolTableEntry);
+
 	// dodavanje labele u tabelu simbola
-	if (symbolTableList == NULL)
+	/*if (symbolTableEntryList->list == NULL)
 	{
-		symbolTableList = makeSymbolTableEntry(label, sectionsCollection->currentSection, offset, 0);
+		symbolTableEntryList->list = makeSymbolTableEntry(label, sectionsCollection->currentSection, offset);
 	}
 	else
 	{
-		SymbolTableEntry *newSymbolTableEntry = makeSymbolTableEntry(label, sectionsCollection->currentSection, offset, symbolTableList->num + 1);
-		symbolTableList->next = newSymbolTableEntry;
-	}
+		SymbolTableEntry *newSymbolTableEntry = makeSymbolTableEntry(label, sectionsCollection->currentSection, offset);
+		addSymbolTableEntry(symbolTableEntryList, newSymbolTableEntry);
+	}*/
 }
 
 void parseDirective(SymbolTableEntry *symbolTableList, SectionsCollection *sectionsCollection, char *token)

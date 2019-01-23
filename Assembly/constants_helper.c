@@ -1,14 +1,11 @@
 #include "constants_helper.h"
 #include <stdio.h>
 
-char *getSectionValue(enum Sections section)
+char *getSectionValue(enum SectionsEnum section)
 {
 	char *value = NULL;
 	switch (section)
 	{
-	case Uninitialized:
-		value = "Uninitialized";
-		break;
 	case Text:
 		value = "text";
 		break;
@@ -20,21 +17,6 @@ char *getSectionValue(enum Sections section)
 		break;
 	case Bss:
 		value = "bss";
-		break;
-	case SymTab:
-		value = "symTab";
-		break;
-	case RelText:
-		value = "relText";
-		break;
-	case RelData:
-		value = "relData";
-		break;
-	case Debug:
-		value = "debug";
-		break;
-	case StrTab:
-		value = "strTab";
 		break;
 	default:
 		value = "Not Found!";

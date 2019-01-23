@@ -15,9 +15,21 @@
 #define WORDSIZE 2
 #define LONGSIZE 4
 
-enum Sections { Uninitialized, Text, RoData, Data, Bss, SymTab, RelText, RelData, Debug, StrTab };
+#define INSTRUCTIONSCOUNT 18
+#define SECTIONSCOUNT 4
 
-enum OpCodes { Add, Sub, Mul, Div, Cmp, And, Or, Not, Test, Push, Pop, Call, Iret, Mov, Shl, Shr };
+#define PC "r7"
+#define SP "r6"
+
+static const char *Instructions[] = { "add", "sub", "mul", "div", "cmp", "and", "or", "not", "test", "push", "pop", "call", "iret", "mov", "shl", "shr", "ret", "jmp" };
+
+static const char *Registers[] = { "r0", "r1", "r2", "r3", "r4", "r5", "r6", "r7" };
+
+static const char *Sections[] = { ".text", ".data", ".rodata", ".bss" };
+
+enum SectionsEnum { Text, Data, RoData, Bss };
+
+enum OpCodes { Add, Sub, Mul, Div, Cmp, And, Or, Not, Test, Push, Pop, Call, Iret, Mov, Shl, Shr, Ret, Jmp };
 
 // Equal, Not equal, Greater, Always
 enum ConditionCodes { Eq, Ne, Gt, Al };

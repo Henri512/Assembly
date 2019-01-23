@@ -3,7 +3,7 @@
 #include <stdio.h>
 
 // SymbolTableEntry methods
-SymbolTableEntry* makeSymbolTableEntry(char* name, char sectionType, int offset, int num)
+SymbolTableEntry* makeSymbolTableEntry(char* name, char sectionType, int offset)
 {
 	SymbolTableEntry *symbolTableEntry;
 	if (!name || name == "")
@@ -22,10 +22,43 @@ SymbolTableEntry* makeSymbolTableEntry(char* name, char sectionType, int offset,
 	symbolTableEntry->name = name;
 	symbolTableEntry->sectionType = sectionType;
 	symbolTableEntry->offset = offset;
-	symbolTableEntry->num = num;
 
 	symbolTableEntry->next = NULL;
 	return symbolTableEntry;
+}
+
+void addSymbolTableEntry(SymbolTableEntryList * list, SymbolTableEntry * entry)
+{
+	SymbolTableEntry *last = list->list;
+	if (last == NULL)
+	{
+		entry->num = 0;
+		list->list = entry;
+		list->count = 1;
+	}
+	else
+	{
+		while (last->next)
+		{
+			last = last->next;
+		}
+
+		entry->num = list->count;
+		list->count++;
+		last->next = entry;
+	}
+}
+
+SymbolTableEntryList *getEmptySymbolTableEntryList()
+{
+	SymbolTableEntryList *newSymbolTableEntryList = (SymbolTableEntryList*)malloc(sizeof(SymbolTableEntryList));
+	if (!newSymbolTableEntryList)
+	{
+		printf("Greska u alokaciji memorije! Kraj izvrsavanja!\n\r");
+		exit(-1);
+	}
+	newSymbolTableEntryList->count = 0;
+	newSymbolTableEntryList->list = NULL;
 }
 
 SymbolTableEntry* getSymbolTableEntryByIndex(SymbolTableEntry* list, int index)
@@ -296,9 +329,10 @@ SectionsCollection* getEmptySectionsCollection()
 	}
 	newSectionsCollection->bssDataSection = NULL;
 	newSectionsCollection->dataDataSection = NULL;
-	newSectionsCollection->relocationDataSection = NULL;
+	// newSectionsCollection->relocationDataSection = NULL;
 	newSectionsCollection->roDataSection = NULL;
 	newSectionsCollection->textDataSection = NULL;
+	newSectionsCollection->currentSection = Text;
 
 	return newSectionsCollection;
 }
@@ -309,7 +343,7 @@ void freeSectionsCollection(SectionsCollection* sectionsCollection)
 	{
 		free(sectionsCollection->bssDataSection);
 		free(sectionsCollection->dataDataSection);
-		free(sectionsCollection->relocationDataSection);
+		// free(sectionsCollection->relocationDataSection);
 		free(sectionsCollection->roDataSection);
 		free(sectionsCollection->textDataSection);
 		free(sectionsCollection);
@@ -320,9 +354,6 @@ void addToCurrentCollectionsCount(SectionsCollection *sectionsCollection, int si
 {
 	switch (sectionsCollection->currentSection)
 	{
-	case Uninitialized:
-		
-		break;
 	case Text:
 		sectionsCollection->textDataSection->size += size;
 		break;
@@ -335,21 +366,6 @@ void addToCurrentCollectionsCount(SectionsCollection *sectionsCollection, int si
 	case Bss:
 		sectionsCollection->bssDataSection->size += size;
 		break;
-	case SymTab:
-
-		break;
-	case RelText:
-
-		break;
-	case RelData:
-		sectionsCollection->relocationDataSection->size += size;
-		break;
-	case Debug:
-
-		break;
-	case StrTab:
-
-		break;
 	default:
 
 		break;
@@ -361,9 +377,6 @@ int getCurrentCollectionsCount(SectionsCollection *sectionsCollection)
 	int counter = 0;
 	switch (sectionsCollection->currentSection)
 	{
-	case Uninitialized:
-
-		break;
 	case Text:
 		counter = sectionsCollection->textDataSection->size;
 		break;
@@ -375,21 +388,6 @@ int getCurrentCollectionsCount(SectionsCollection *sectionsCollection)
 		break;
 	case Bss:
 		counter = sectionsCollection->bssDataSection->size;
-		break;
-	case SymTab:
-
-		break;
-	case RelText:
-
-		break;
-	case RelData:
-		counter = sectionsCollection->relocationDataSection->size;
-		break;
-	case Debug:
-
-		break;
-	case StrTab:
-
 		break;
 	default:
 

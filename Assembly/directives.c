@@ -21,6 +21,7 @@ void parseAsciiDirectives(char *token, char hasZeroByte, SectionsCollection *sec
 	}
 
 	addToCurrentCollectionsCount(sectionsCollection, byteCount);
+	freeTokenList(tokenList);
 }
 
 void parseCharWordLongDirectives(char *token, SectionsCollection *sectionsCollection, char size)
@@ -34,6 +35,7 @@ void parseCharWordLongDirectives(char *token, SectionsCollection *sectionsCollec
 		byteCount = byteCount + size;
 	}
 	addToCurrentCollectionsCount(sectionsCollection, byteCount);
+	freeTokenList(tokenList);
 }
 
 void parseCharDirective(char *token, SectionsCollection *sectionsCollection)
@@ -54,6 +56,7 @@ void parseCharDirective(char *token, SectionsCollection *sectionsCollection)
 		byteCount = byteCount + CHARSIZE;
 	}
 	addToCurrentCollectionsCount(sectionsCollection, byteCount);
+	freeTokenList(tokenList);
 }
 
 void parseWordDirective(char *token, SectionsCollection *sectionsCollection)
@@ -74,6 +77,7 @@ void parseWordDirective(char *token, SectionsCollection *sectionsCollection)
 		byteCount = byteCount + WORDSIZE;
 	}
 	addToCurrentCollectionsCount(sectionsCollection, byteCount);
+	freeTokenList(tokenList);
 }
 
 void parseAlignDirective(char *token, SectionsCollection *sectionsCollection)
@@ -94,8 +98,8 @@ void parseAlignDirective(char *token, SectionsCollection *sectionsCollection)
 				addToCurrentCollectionsCount(sectionsCollection, round - (counter % round));
 			}
 		}
-
 	}
+	freeTokenList(tokenList);
 }
 
 void parseSkipDirective(char *token, SectionsCollection *sectionsCollection)
@@ -109,4 +113,5 @@ void parseSkipDirective(char *token, SectionsCollection *sectionsCollection)
 		byteCount = strtol(directiveValue, &ptr, 10);
 	}
 	addToCurrentCollectionsCount(sectionsCollection, byteCount);
+	freeTokenList(tokenList);
 }

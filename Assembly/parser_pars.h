@@ -1,12 +1,14 @@
 #pragma once
 #include "sections.h"
 
-void executeFirstPass(SymbolTableEntry *symbolTableEntry, SectionsCollection *sectionsCollection, char *inputFilePath);
+void executeFirstPass(SymbolTableEntryList *symbolTableEntryList, SectionsCollection *sectionsCollection, char *inputFilePath);
 
-void parseTokenFirstPass(SymbolTableEntry *symbolTableEntry, SectionsCollection *sectionsCollection, char *token);
+void *parseTokenFirstPass(SymbolTableEntryList *symbolTableEntryList, SectionsCollection *sectionsCollection, char *token);
 
-void parseSection(SectionsCollection *sectionsCollection, char *token);
+void parseSection(SectionsCollection *sectionsCollection, char section);
 
-void parseLabel(SymbolTableEntry *symbolTableEntry, SectionsCollection *sectionsCollection, char *token);
+void *parseLabel(SymbolTableEntryList *symbolTableEntryList, SectionsCollection *sectionsCollection, char *token);
 
-void parseDirective(SymbolTableEntry *symbolTableList, SectionsCollection *sectionsCollection, char *token);
+void *addLabelToSymbolTableList(SymbolTableEntryList *symbolTableEntryList, SectionsCollection *sectionsCollection, char *label);
+
+void parseDirective(SymbolTableEntryList *symbolTableEntryList, SectionsCollection *sectionsCollection, char *token);

@@ -9,7 +9,7 @@ int main(int argc, char* argv[])
 {
 	int dummy = 0;
 	SectionsCollection *sectionsCollection = getEmptySectionsCollection();
-	SymbolTableEntry *symbolTableEntryList = NULL;
+	SymbolTableEntry *symbolTableEntryList = getEmptySymbolTableEntryList();
 	// StringData *list = NULL;
 	if (argc < 2)
 	{

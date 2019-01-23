@@ -121,6 +121,7 @@
     <ClInclude Include="directives.h" />
     <ClInclude Include="file_reader.h" />
     <ClInclude Include="helpers.h" />
+    <ClInclude Include="instructions.h" />
     <ClInclude Include="parser_helpers.h" />
     <ClInclude Include="parser_pars.h" />
     <ClInclude Include="sections.h" />
@@ -134,6 +135,7 @@
     <ClCompile Include="directives.c" />
     <ClCompile Include="file_reader.c" />
     <ClCompile Include="helpers.c" />
+    <ClCompile Include="instructions.c" />
     <ClCompile Include="main.c" />
     <ClCompile Include="parser_helpers.c" />
     <ClCompile Include="parser_pars.c" />
@@ -143,6 +145,7 @@
     <ClCompile Include="string_model.c" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="test_1.s" />
     <None Include="test_hi.s" />
     <None Include="test_hw.s" />
   </ItemGroup>

@@ -14,7 +14,7 @@ main:				# pocetak programa
 	sub r2, r2		# r2 = 0
 	ldr r3, r2, mbegin	# r3 = mdata, pocetak niza za ispis
 	ldr r4, r2, mbound	# r4 = mend, kraj niza za ispis
-	push r4			# stavljanje parametrara na stek
+	push r4			# stavljanje parametara na stek
 	push r3			# 
 	call print		# poziv print
 	add sp, 8		# skidanje sa steka
@@ -31,7 +31,8 @@ print:
 	ldr r14, sp, 28		# r14 = mend, kraj niza
 	ldr r15, sp, 24		# r15 = mdata, pocetak niza
 	
-loop:	cmp r15, r14		# poredjenje sa krajem
+loop:	
+	cmp r15, r14		# poredjenje sa krajem
 	je exit			# izlazak iz petlje
 	ldr r12, r15		# r12 = mdata[r15], dohvatanje sledeceg znaka za ispis
 	out r13, r12		# putchar(r12), ispis znaka

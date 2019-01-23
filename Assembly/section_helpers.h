@@ -5,6 +5,10 @@ char isTokenLabel(char *token);
 
 char isTokenDirective(char *token);
 
-int getLabelTokenSize(char *label);
-
 void initializeSectionIfEmpty(SectionsCollection *sectionsCollection, int index, int start, int size);
+
+char getTokenSectionValue(char *token);
+
+char getTokenInstructionValue(char *token);
+
+char *getInstructionFromToken(char *token);

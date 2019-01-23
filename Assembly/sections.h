@@ -11,7 +11,15 @@ typedef struct symbolTableEntry
 	struct symbolTableEntry *next;
 } SymbolTableEntry;
 
-SymbolTableEntry* makeSymbolTableEntry(char *name, char sectionType, int offset, int num);
+typedef struct symbolTableEntryList
+{
+	int count;
+	struct symbolTableEntry *list;
+} SymbolTableEntryList;
+
+SymbolTableEntry* makeSymbolTableEntry(char *name, char sectionType, int offset);
+
+void addSymbolTableEntry(SymbolTableEntryList *list, SymbolTableEntry *entry);
 
 SymbolTableEntry* getSymbolTableEntryByIndex(SymbolTableEntry *list, int index);
 
@@ -76,15 +84,17 @@ void freeSectionDataList(SectionData *list);
 // SectionsCollection methods declaration
 typedef struct sectionsCollection
 {
-	struct relocationData *relocationDataSection;
+	// struct relocationData *relocationDataSection;
 	struct sectionData *dataDataSection;
 	struct sectionData *roDataSection;
 	struct sectionData *textDataSection;
 	struct sectionData *bssDataSection;
-	enum Sections currentSection;
+	enum SectionsEnum currentSection;
 } SectionsCollection;
 
 SectionsCollection* getEmptySectionsCollection();
+
+SymbolTableEntryList *getEmptySymbolTableEntryList();
 
 void freeSectionsCollection(SectionsCollection *sectionsCollection);
 

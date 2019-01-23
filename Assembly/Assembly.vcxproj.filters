@@ -51,6 +51,9 @@
     <ClInclude Include="directives.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="instructions.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="file_reader.c">
@@ -86,9 +89,13 @@
     <ClCompile Include="directives.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="instructions.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="test_hi.s" />
     <None Include="test_hw.s" />
+    <None Include="test_1.s" />
   </ItemGroup>
 </Project>

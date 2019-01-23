@@ -13,6 +13,14 @@ char isEndToken(char *token);
 
 char isValidToken(char *token);
 
+char isTokenComment(char *token);
+
+char isTokenEmptyLine(char *token);
+
 FILE *getInputFile(char *filePath);
 
-TokenList *getLabelTokens(char *token);
+TokenList *getInstructionsTokens(char *token);
+
+void freeTokenList(TokenList *tokenList);
+
+char getAddressingType(TokenList *tokenList);

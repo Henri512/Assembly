@@ -1,4 +1,5 @@
 #include "section_helpers.h"
+#include "string_helpers.h"
 #include "constants.h"
 #include "sections.h"
 #include <string.h>
@@ -15,35 +16,10 @@ char isTokenDirective(char *token)
 	return token[0] == '.';
 }
 
-int getLabelTokenSize(char *label)
-{
-	int size = -1;
-	if (strcmp(label, CHARDIRECTIVE))
-	{
-		size = 1;
-	}
-	else if (strcmp(label, LONGDIRECTIVE))
-	{
-		size = 4;
-	}
-	else if (strcmp(label, SKIPDIRECTIVE))
-	{
-
-	}
-	else if (strcmp(label, ALIGNDIRECTIVE))
-	{
-
-	}
-	return size;
-}
-
 void initializeSectionIfEmpty(SectionsCollection *sectionsCollection, int index, int start, int size)
 {
 	switch (sectionsCollection->currentSection)
 	{
-	case Uninitialized:
-
-		break;
 	case Text:
 		if (!sectionsCollection->textDataSection)
 		{
@@ -68,26 +44,63 @@ void initializeSectionIfEmpty(SectionsCollection *sectionsCollection, int index,
 			sectionsCollection->bssDataSection = makeSectionData(index, start, size, NULL);
 		}
 		break;
-	case SymTab:
-
-		break;
-	case RelText:
-
-		break;
-	case RelData:
-		if (!sectionsCollection->relocationDataSection)
-		{
-			sectionsCollection->relocationDataSection = makeSectionData(index, start, size, NULL);
-		}
-		break;
-	case Debug:
-
-		break;
-	case StrTab:
-
-		break;
 	default:
-
 		break;
 	}
+}
+
+char getTokenSectionValue(char *token) 
+{
+	char result = -1;
+	for (int i = 0; i < SECTIONSCOUNT; i++)
+	{
+		if (startsWith(Sections[i], token))
+		{
+			result = i;
+		}
+	}
+	return result;
+}
+
+char getTokenInstructionValue(char *token)
+{
+	char result = -1;
+	char *instruction = getInstructionFromToken(token);
+	int length = strlen(instruction);
+	for (int i = 0; i <INSTRUCTIONSCOUNT; i++)
+	{
+		if (!strcmp(Instructions[i], instruction))
+		{
+			result = i;
+		}
+		else if (startsWith(Instructions[i], instruction))
+		{
+			if (!strcmp(instruction + length - 3, "_eq") ||
+				!strcmp(instruction + length - 3, "_ne") ||
+				!strcmp(instruction + length - 3, "_gt"))
+			{
+				result = i;
+			}
+			else
+			{
+				printf("\tNepostojeca instrukcija \'%s\', kraj asembliranja!", instruction);
+				exit(-1);
+			}
+		}
+	}
+	free(instruction);
+	return result;
+}
+
+char *getInstructionFromToken(char *token)
+{
+	int i = 0;
+	while (token[i] != ' ')
+	{
+		i++;
+	}
+	char *instruction = (char*)malloc(sizeof(char) * (i + 1));
+	strncpy(instruction, token, i);
+	instruction[i] = '\0';
+	return instruction;
 }

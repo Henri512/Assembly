@@ -22,11 +22,10 @@ FILE *getInputFile(char *filePath)
 char *getTokenFromLine(char *line)
 {
 	char *token = strtok(line, "#");
-	token = strtok(line, "@");
-	token = strtok(line, ";");
-	token = strtok(line, "\n");
-	token = leftTrim(token, NULL);
-	token = rightTrim(token, NULL);
+	token = strtok(token, "@");
+	token = strtok(token, ";");
+	token = rightTrim(line, NULL);
+	token = leftTrim(line, NULL);
 	return token;
 }
 
@@ -37,15 +36,25 @@ char isEndToken(char *token)
 
 char isValidToken(char *token)
 {
-	return token && strlen(token) > 0 && token[0] != '#' && token[0] != '@'
-		&& token[0] != ';' && token[0] != '\n';
+	return token && strlen(token) > 0
+		&& token[0] != ';';
+}
+
+char isTokenComment(char *token)
+{
+	return token[0] == '#' || token[0] == '@';
+}
+
+char isTokenEmptyLine(char *token)
+{
+	return token == NULL || strlen(token) == 0;
 }
 
 TokenList *getInstructionsTokens(char *token)
 {
-	TokenList *tokenList;
+	TokenList *tokenList = NULL;
 	const char *delimiter = " ";
-	char *tok;
+	char *tok, *tempToken;
 	char **tokens = NULL;
 	int i = 0, j = 0;
 	tokenList = (TokenList*)malloc(sizeof(TokenList));
@@ -62,8 +71,16 @@ TokenList *getInstructionsTokens(char *token)
 		exit(-1);
 	}
 
+	tempToken = (char*)malloc(sizeof(char) * strlen(token) + 1);
+	if (tempToken == NULL)
+	{
+		printf("Greska u alokaciji memorije! Kraj izvrsavanja!\n\r");
+		exit(-1);
+	}
+	strcpy(tempToken, token);
+
 	// get the first token 
-	tok = strtok(token, delimiter);
+	tok = strtok(tempToken, delimiter);
 
 	// walk through other tokens
 	while (tok != NULL)
@@ -89,3 +106,21 @@ TokenList *getInstructionsTokens(char *token)
 	return tokenList;
 }
 
+void freeTokenList(TokenList *tokenList)
+{
+	int i;
+	if (tokenList && tokenList->tokens)
+	{
+		/*
+		for (i = 0; i < tokenList->size; i++)
+		{
+			free(tokenList->tokens[i]);
+		}*/
+		free(tokenList);
+	}
+}
+
+char getAddressingType(TokenList *tokenList)
+{
+	return 0;
+}
