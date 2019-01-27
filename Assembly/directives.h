@@ -3,12 +3,26 @@
 
 void parseAsciiDirectives(char *token, char hasZeroByte, SectionsCollection *sectionsCollection);
 
+void parseExternDirective(char *token, SectionsCollection *sectionsCollection, SymbolTableEntryList *symbolTableEntryList);
+
+void addExternDirectiveToSymbolTableList(SymbolTableEntryList *symbolTableEntryList, char *directiveValue);
+
 void parseCharWordLongDirectives(char *token, SectionsCollection *sectionsCollection, char size);
-
-void parseCharDirective(char *token, SectionsCollection *sectionsCollection);
-
-void parseWordDirective(char *token, SectionsCollection *sectionsCollection);
 
 void parseAlignDirective(char *token, SectionsCollection *sectionsCollection);
 
 void parseSkipDirective(char *token, SectionsCollection *sectionsCollection);
+
+void parseGlobalDirective(char *token, SymbolTableEntryList *symbolTableEntryList);
+
+void parseCharWordLongDirectivesSP(SymbolTableEntryList *symbolTableEntryList, char *token, SectionsCollection *sectionsCollection, char size);
+
+void validateAndAddCWLDirectiveContent(SectionsCollection *sectionsCollection, char *directiveValue, char size, int length);
+
+void addLabelOffsetToContent(SectionsCollection *sectionsCollection, int offset, char size);
+
+void addDirectiveRelDataToSymbolTableList(SymbolTableEntryList *symbolTableEntryList, SectionsCollection *sectionsCollection, char *label, enum SectionEnum section, int offset);
+
+void addLabelToContent(SectionsCollection * sectionsCollection, int offset, char size);
+
+void parseAsciiDirectivesSP(char *token, char hasZeroByte, SectionsCollection *sectionsCollection);

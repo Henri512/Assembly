@@ -3,7 +3,7 @@
 #include <stdio.h>
 
 // SymbolTableEntry methods
-SymbolTableEntry* makeSymbolTableEntry(char* name, char sectionType, int offset)
+SymbolTableEntry* makeSymbolTableEntry(char* name, char section, int offset)
 {
 	SymbolTableEntry *symbolTableEntry;
 	if (!name || name == "")
@@ -20,7 +20,8 @@ SymbolTableEntry* makeSymbolTableEntry(char* name, char sectionType, int offset)
 	}
 
 	symbolTableEntry->name = name;
-	symbolTableEntry->sectionType = sectionType;
+	symbolTableEntry->section = section;
+	symbolTableEntry->sectionType = Local;
 	symbolTableEntry->offset = offset;
 
 	symbolTableEntry->next = NULL;
@@ -113,7 +114,7 @@ void freeSymbolTableEntryList(SymbolTableEntry* list)
 }
 
 // RelocationData methods
-RelocationData* makeRelocationData(char sectionType, int offset, char relocationType)
+RelocationData* makeRelocationData(char sectionType, int offset, char relocationType, int num)
 {
 	RelocationData *relocationData = (RelocationData*)malloc(sizeof(RelocationData));
 	if (!relocationData)
@@ -122,9 +123,11 @@ RelocationData* makeRelocationData(char sectionType, int offset, char relocation
 		exit(-1);
 	}
 
-	relocationData->sectionType = sectionType;
+	relocationData->sectionType = sectionType == Local ? 'l' : 'g';
 	relocationData->offset = offset;
 	relocationData->relocationType = relocationType;
+	relocationData->num = num;
+	relocationData->size = 0;
 
 	relocationData->next = NULL;
 	return relocationData;
@@ -155,7 +158,7 @@ RelocationData* getRelocationDataByIndex(RelocationData* list, int index)
 	}
 }
 
-int RelocationDataSize(RelocationData* list)
+int RelocationDataSize(RelocationData *list)
 {
 	int size = 0;
 	if (list)
@@ -169,7 +172,7 @@ int RelocationDataSize(RelocationData* list)
 	return size;
 }
 
-void freeRelocationDataList(RelocationData * list)
+void freeRelocationDataList(RelocationData *list)
 {
 	RelocationData *old;
 	while (list)
@@ -181,25 +184,22 @@ void freeRelocationDataList(RelocationData * list)
 }
 
 // SectionContent methods
-SectionContent * makeSectionContent(char * content, int size)
-{
-	SectionContent *sectionContent;
 
-	sectionContent = malloc(sizeof(SectionContent));
-	if (!sectionContent)
+SectionContent* makeNewSectionContent()
+{
+	SectionContent *newContent = (SectionContent*)malloc(sizeof(SectionContent));
+	if (!newContent)
 	{
 		printf("Greska u alokaciji memorije! Kraj izvrsavanja!\n\r");
 		exit(-1);
 	}
-
-	sectionContent->content = content;
-	sectionContent->size = size;
-
-	sectionContent->next = NULL;
-	return sectionContent;
+	// memset(newContent->content, '\0', SECTIONSIZE);
+	newContent->count = 0;
+	newContent->next = NULL;
+	return newContent;
 }
 
-SectionContent* getSectionContentByIndex(SectionContent* list, int index)
+SectionContent *getSectionContentByIndex(SectionContent *list, int index)
 {
 	if (!list)
 	{
@@ -258,12 +258,21 @@ SectionData* makeSectionData(int index, int start, int size, SectionContent *con
 		printf("Greska u alokaciji memorije! Kraj izvrsavanja!\n\r");
 		exit(-1);
 	}
+	if (!content)
+	{
+		sectionData->content = makeNewSectionContent();
+	}
+	else
+	{
+		sectionData->content = content;
+	}
 
 	sectionData->index = index;
 	sectionData->start = start;
 	sectionData->size = size;
-	sectionData->content = content;
+	sectionData->marked = 0;
 
+	sectionData->relData = NULL;
 	sectionData->next = NULL;
 	return sectionData;
 }
@@ -327,11 +336,10 @@ SectionsCollection* getEmptySectionsCollection()
 		printf("Greska u alokaciji memorije! Kraj izvrsavanja!\n\r");
 		exit(-1);
 	}
-	newSectionsCollection->bssDataSection = NULL;
-	newSectionsCollection->dataDataSection = NULL;
-	// newSectionsCollection->relocationDataSection = NULL;
-	newSectionsCollection->roDataSection = NULL;
-	newSectionsCollection->textDataSection = NULL;
+	newSectionsCollection->textDataSection = makeSectionData(Text, 0, 0, NULL);
+	newSectionsCollection->bssDataSection = makeSectionData(Bss, 0, 0, NULL);
+	newSectionsCollection->dataDataSection = makeSectionData(Data, 0, 0, NULL);
+	newSectionsCollection->roDataSection = makeSectionData(RoData, 0, 0, NULL);
 	newSectionsCollection->currentSection = Text;
 
 	return newSectionsCollection;
@@ -343,55 +351,76 @@ void freeSectionsCollection(SectionsCollection* sectionsCollection)
 	{
 		free(sectionsCollection->bssDataSection);
 		free(sectionsCollection->dataDataSection);
-		// free(sectionsCollection->relocationDataSection);
 		free(sectionsCollection->roDataSection);
 		free(sectionsCollection->textDataSection);
 		free(sectionsCollection);
 	}
 }
 
-void addToCurrentCollectionsCount(SectionsCollection *sectionsCollection, int size)
+void addCharContentToSection(SectionData *sectionData, char content)
 {
-	switch (sectionsCollection->currentSection)
+	// ako content nije inicijalizovan
+	if (!sectionData->content)
 	{
-	case Text:
-		sectionsCollection->textDataSection->size += size;
-		break;
-	case RoData:
-		sectionsCollection->roDataSection->size += size;
-		break;
-	case Data:
-		sectionsCollection->dataDataSection->size += size;
-		break;
-	case Bss:
-		sectionsCollection->bssDataSection->size += size;
-		break;
-	default:
-
-		break;
+		sectionData->content = makeNewSectionContent();
+		sectionData->content->content[sectionData->content->count++] = content;
 	}
+
+	SectionContent *sectionContent = sectionData->content;
+
+	// ako ima mesta u prvom content-u
+	if (sectionContent->count < SECTIONSIZE)
+	{
+		sectionContent->content[sectionContent->count++] = content;
+	}
+	// ako je prvi pun a sledeci nije inicijalizovan
+	else if (!sectionContent->next)
+	{
+		sectionContent->next = makeNewSectionContent();
+		sectionContent = sectionContent->next;
+		sectionContent->content[sectionContent->count++] = content;
+	}
+	// ako nema mesta u prvom content-u trazi se sledeci gde ima mesta ili ce se napraviti sledeci
+	else if (sectionContent->count == SECTIONSIZE && sectionContent->next)
+	{
+		while (sectionContent->count == SECTIONSIZE && sectionContent->next)
+		{
+			sectionContent = sectionContent->next;
+		}
+		if (sectionContent->count < SECTIONSIZE)
+		{
+			sectionContent->content[sectionContent->count++] = content;
+		}
+		else
+		{
+			sectionContent->next = makeNewSectionContent();
+			sectionContent = sectionContent->next;
+			sectionContent->content[sectionContent->count++] = content;
+		}
+	}
+	sectionData->size++;
 }
 
-int getCurrentCollectionsCount(SectionsCollection *sectionsCollection)
+SymbolTableEntry *getSymbolByName(SymbolTableEntryList* list, char *symbolName)
 {
-	int counter = 0;
-	switch (sectionsCollection->currentSection)
+	SymbolTableEntry *symbol = list->list;
+	while (symbol && strcmp(symbol->name, symbolName))
 	{
-	case Text:
-		counter = sectionsCollection->textDataSection->size;
-		break;
-	case RoData:
-		counter = sectionsCollection->roDataSection->size;
-		break;
-	case Data:
-		counter = sectionsCollection->dataDataSection->size;
-		break;
-	case Bss:
-		counter = sectionsCollection->bssDataSection->size;
-		break;
-	default:
-
-		break;
+		symbol = symbol->next;
 	}
-	return counter;
+	return symbol;
+}
+
+void setGlobal(char *symbolName, SymbolTableEntryList *symbolTableEntryList)
+{
+	SymbolTableEntry *symbolEntry = getSymbolByName(symbolTableEntryList, symbolName);
+	if (symbolEntry)
+	{
+		symbolEntry->sectionType = Global;
+	}
+	else
+	{
+		printf("Doslo se do kraja liste, simbol sa nazivom \'%s\' ne postoji!\n\r", symbolName);
+		exit(-1);
+	}
 }

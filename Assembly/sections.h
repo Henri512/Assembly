@@ -5,7 +5,8 @@
 typedef struct symbolTableEntry
 {
 	char *name;
-	char sectionType;
+	enum SectionsEnum section;
+	enum SectionType sectionType;
 	int offset;
 	int num;
 	struct symbolTableEntry *next;
@@ -17,7 +18,7 @@ typedef struct symbolTableEntryList
 	struct symbolTableEntry *list;
 } SymbolTableEntryList;
 
-SymbolTableEntry* makeSymbolTableEntry(char *name, char sectionType, int offset);
+SymbolTableEntry* makeSymbolTableEntry(char *name, char section, int offset);
 
 void addSymbolTableEntry(SymbolTableEntryList *list, SymbolTableEntry *entry);
 
@@ -34,10 +35,11 @@ typedef struct relocationData
 	int offset;
 	int size;
 	char relocationType;
+	int num;
 	struct relocationData *next;
 } RelocationData;
 
-RelocationData* makeRelocationData(char sectionType, int offset, char relocationType);
+RelocationData* makeRelocationData(char sectionType, int offset, char relocationType, int num);
 
 RelocationData* getRelocationDataByIndex(RelocationData *list, int index);
 
@@ -48,14 +50,14 @@ void freeRelocationDataList(RelocationData *list);
 // SectionContent methods declaration
 typedef struct sectionContent
 {
-	char *content;
-	int size;
+	char content[SECTIONSIZE];
+	int count;
 	struct sectionContent *next;
 } SectionContent;
 
-SectionContent* makeSectionContent(char *content, int size);
+SectionContent *makeNewSectionContent();
 
-SectionContent* getSectionContentByIndex(SectionContent *list, int index);
+SectionContent *getSectionContentByIndex(SectionContent *list, int index);
 
 int SectonContentSize(SectionContent *list);
 
@@ -67,11 +69,11 @@ typedef struct sectionData
 	int index;
 	int start;
 	int size;
+	char marked;
 	struct sectionContent *content;
+	struct relocationData *relData;
 	struct sectionData *next;
 } SectionData;
-
-// SectionData *addSectionData(SectionData *list, SectionData *entry);
 
 SectionData* makeSectionData(int index, int start, int size, SectionContent *content);
 
@@ -84,7 +86,6 @@ void freeSectionDataList(SectionData *list);
 // SectionsCollection methods declaration
 typedef struct sectionsCollection
 {
-	// struct relocationData *relocationDataSection;
 	struct sectionData *dataDataSection;
 	struct sectionData *roDataSection;
 	struct sectionData *textDataSection;
@@ -98,6 +99,8 @@ SymbolTableEntryList *getEmptySymbolTableEntryList();
 
 void freeSectionsCollection(SectionsCollection *sectionsCollection);
 
-void addToCurrentCollectionsCount(SectionsCollection *sectionsCollection, int size);
+void addCharContentToSection(SectionData *sectionData, char content);
 
-int getCurrentCollectionsCount(SectionsCollection *sectionsCollection);
+SymbolTableEntry *getSymbolByName(SymbolTableEntryList *list, char *symbolName);
+
+void setGlobal(char *symbolName, SymbolTableEntryList *symbolTableEntryList);

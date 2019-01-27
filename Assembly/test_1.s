@@ -8,9 +8,19 @@ mbound:	.long mend		# pokazuje na kraj niza
 mdata:	.char 'H', 'e', 'l', 'l', 'o', 0x2c, 0x20, 'w', 'o', 'r', 'l', 'd', '.', '\n'	# niz za ispis
 mend:	.skip 3			# kraj niza
 output: .long 0xFFFE	# adresa za stampanje na standardni izlaz
+.align 8
 
 .text
 main:				# pocetak programa
+	jmp *50
+	jmp r7[mend]
+	#ret 1
+	call r4[mdata]
+	push $20
+	push $mdata
+	pop r0
+	pop $20
+	push $unknown
 	sub r0, r0		# r0 = 0
 	mov r1, r0[mbegin]	# r1 = mdata, pocetak niza za ispis
 	mov r2, r0[mbound]	# r2 = mend, kraj niza za ispis
@@ -39,7 +49,9 @@ loop:
 	call printf		# printf(r1), ispis znaka
 	add r4, 1		# r4++, pomeranje na sledecu lokaciju
 	jmp loop		# povratak na pocetak petlje
-	mov r1, psw	
+	mov r1, &psw	
+	mov_ne r1, r2
+	mov_gt r3, r4
 
 exit:	
 	pop r4		# skidanje starih vrednosti registara sa steka

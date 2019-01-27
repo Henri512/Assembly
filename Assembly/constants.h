@@ -1,15 +1,21 @@
 ﻿#pragma once
 #define ENDDIRECTIVE ".end"
 #define GLOBALDIRECTIVE ".global"
-#define SECTIONDIRECTIVE ".section"
-#define ASCIZDIRECTIVE ".asciz"
-#define ASCIIDIRECTIVE ".ascii"
+#define EXTERNDIRECTIVE ".extern"
+// #define ASCIZDIRECTIVE ".asciz"
+// #define ASCIIDIRECTIVE ".ascii"
 
 #define CHARDIRECTIVE ".char"
 #define WORDDIRECRTIVE ".word"
 #define LONGDIRECTIVE ".long"
 #define ALIGNDIRECTIVE ".align"
 #define SKIPDIRECTIVE ".skip"
+
+#define PCRELRELOCATION "R_386_PC16"
+#define CHARRELOCATION "R_386_8"
+#define WORDRELOCATION "R_386_16"
+#define LONGRELOCATION "R_386_32"
+#define ABSRELOCATION WORDRELOCATION
 
 #define CHARSIZE 1
 #define WORDSIZE 2
@@ -18,21 +24,35 @@
 #define INSTRUCTIONSCOUNT 18
 #define SECTIONSCOUNT 4
 
+#define SECTIONSIZE 50
+
 #define PC "r7"
 #define SP "r6"
+
+#define VALUEWILDCARD '&'
+#define ADRLOCWILDCARD '*'
+#define PCRELINDWILDCARD '$'
+
+#define UNKNOWNLABELOFFSET 127
 
 static const char *Instructions[] = { "add", "sub", "mul", "div", "cmp", "and", "or", "not", "test", "push", "pop", "call", "iret", "mov", "shl", "shr", "ret", "jmp" };
 
 static const char *Registers[] = { "r0", "r1", "r2", "r3", "r4", "r5", "r6", "r7" };
 
-static const char *Sections[] = { ".text", ".data", ".rodata", ".bss" };
+static const char *Sections[] = { ".text", ".data", ".rodata", ".bss", "unknown" };
 
-enum SectionsEnum { Text, Data, RoData, Bss };
+enum SectionType { Local, Global };
+
+enum SectionsEnum { Text, Data, RoData, Bss, Unknown = 127 };
 
 enum OpCodes { Add, Sub, Mul, Div, Cmp, And, Or, Not, Test, Push, Pop, Call, Iret, Mov, Shl, Shr, Ret, Jmp };
 
 // Equal, Not equal, Greater, Always
 enum ConditionCodes { Eq, Ne, Gt, Al };
+
+enum OperandTypes { Dst, Src };
+
+enum RelocationTypes { PCREL, ABS};
 
 //Operandi se kodiraju tako što najviša dva bita određuju tip adresiranja. U tipovima adresiranja u
 //kojima je potreban registar, broj registra zapisan je u preostala 3 bita operanda. U slučaju da je za

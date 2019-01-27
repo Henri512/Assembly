@@ -122,8 +122,10 @@
     <ClInclude Include="file_reader.h" />
     <ClInclude Include="helpers.h" />
     <ClInclude Include="instructions.h" />
+    <ClInclude Include="instruction_helpers.h" />
     <ClInclude Include="parser_helpers.h" />
-    <ClInclude Include="parser_pars.h" />
+    <ClInclude Include="parser_first.h" />
+    <ClInclude Include="parser_second.h" />
     <ClInclude Include="sections.h" />
     <ClInclude Include="section_helpers.h" />
     <ClInclude Include="string_helpers.h" />
@@ -136,9 +138,11 @@
     <ClCompile Include="file_reader.c" />
     <ClCompile Include="helpers.c" />
     <ClCompile Include="instructions.c" />
+    <ClCompile Include="instruction_helpers.c" />
     <ClCompile Include="main.c" />
     <ClCompile Include="parser_helpers.c" />
-    <ClCompile Include="parser_pars.c" />
+    <ClCompile Include="parser_first.c" />
+    <ClCompile Include="parser_second.c" />
     <ClCompile Include="sections.c" />
     <ClCompile Include="section_helpers.c" />
     <ClCompile Include="string_helpers.c" />

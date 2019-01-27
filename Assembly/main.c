@@ -1,6 +1,8 @@
 #include "sections.h"
 #include "helpers.h"
-#include "parser_pars.h"
+#include "parser_first.h"
+#include "parser_second.h"
+#include "section_helpers.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -9,7 +11,7 @@ int main(int argc, char* argv[])
 {
 	int dummy = 0;
 	SectionsCollection *sectionsCollection = getEmptySectionsCollection();
-	SymbolTableEntry *symbolTableEntryList = getEmptySymbolTableEntryList();
+	SymbolTableEntryList *symbolTableEntryList = getEmptySymbolTableEntryList();
 	// StringData *list = NULL;
 	if (argc < 2)
 	{
@@ -25,6 +27,10 @@ int main(int argc, char* argv[])
 	// list = GetInputList(argv[1]);
 
 	executeFirstPass(symbolTableEntryList, sectionsCollection, argv[1]);
+
+	resetCounters(sectionsCollection);
+
+	executeSecondPass(symbolTableEntryList, sectionsCollection, argv[1]);
 
 	int i = scanf("%d", &dummy);
 

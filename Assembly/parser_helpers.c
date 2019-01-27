@@ -111,11 +111,6 @@ void freeTokenList(TokenList *tokenList)
 	int i;
 	if (tokenList && tokenList->tokens)
 	{
-		/*
-		for (i = 0; i < tokenList->size; i++)
-		{
-			free(tokenList->tokens[i]);
-		}*/
 		free(tokenList);
 	}
 }

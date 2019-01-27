@@ -1,13 +1,13 @@
-#include "parser_pars.h"
+#include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include "parser_first.h"
 #include "parser_helpers.h"
 #include "string_helpers.h"
 #include "constants_helper.h"
 #include "section_helpers.h"
 #include "directives.h"
 #include "instructions.h"
-#include <string.h>
-#include <stdio.h>
-#include <stdlib.h>
 
 void executeFirstPass(SymbolTableEntryList *symbolTableEntryList, SectionsCollection *sectionsCollection, char *inputFilePath)
 {
@@ -22,8 +22,6 @@ void executeFirstPass(SymbolTableEntryList *symbolTableEntryList, SectionsCollec
 
 	while (fgets(line, line_size, inputFile) != NULL)
 	{
-		printf("In %s section:\n\r", getSectionValue(sectionsCollection->currentSection));
-
 		char *token = getTokenFromLine(line);
 		if (!isTokenComment(token) && !isTokenEmptyLine(token))
 		{
@@ -37,6 +35,7 @@ void executeFirstPass(SymbolTableEntryList *symbolTableEntryList, SectionsCollec
 				printf("\tNaredba %s nije validna, kraj asembliranja!", token);
 				exit(-1);
 			}
+			printf("In %s section:\n\r", getSectionValue(sectionsCollection->currentSection));
 
 			parseTokenFirstPass(symbolTableEntryList, sectionsCollection, token);
 		}
@@ -49,7 +48,7 @@ void executeFirstPass(SymbolTableEntryList *symbolTableEntryList, SectionsCollec
 	}
 }
 
-void *parseTokenFirstPass(SymbolTableEntryList *symbolTableEntryList, SectionsCollection *sectionsCollection, char *token)
+void parseTokenFirstPass(SymbolTableEntryList *symbolTableEntryList, SectionsCollection *sectionsCollection, char *token)
 {
 	char instructionValue, sectionValue;
 	if ((sectionValue = getTokenSectionValue(token)) > -1)
@@ -74,15 +73,8 @@ void *parseTokenFirstPass(SymbolTableEntryList *symbolTableEntryList, SectionsCo
 	}
 }
 
-// enum Sections { Text, RoData, Data, Bss, SymTab, RelText, RelData, Debug, StrTab };
-void parseSection(SectionsCollection *sectionsCollection, char section)
-{
-	sectionsCollection->currentSection = section;
-	initializeSectionIfEmpty(sectionsCollection, 0, 0, 0);
-}
-
 // strncpy(dest, src + beginIndex, endIndex - beginIndex);
-void *parseLabel(SymbolTableEntryList *symbolTableEntryList, SectionsCollection *sectionsCollection, char *token)
+void parseLabel(SymbolTableEntryList *symbolTableEntryList, SectionsCollection *sectionsCollection, char *token)
 {
 	SymbolTableEntry *newSymbolTableEntry = NULL;
 	int labelLength = 0, tokenLength = strlen(token), offset = 0;
@@ -134,23 +126,18 @@ void *parseLabel(SymbolTableEntryList *symbolTableEntryList, SectionsCollection 
 	}
 }
 
-void *addLabelToSymbolTableList(SymbolTableEntryList *symbolTableEntryList, SectionsCollection *sectionsCollection, char *label)
+void addLabelToSymbolTableList(SymbolTableEntryList *symbolTableEntryList, SectionsCollection *sectionsCollection, char *label)
 {
+	if (labelExists(symbolTableEntryList, label))
+	{
+		printf("\tLabela %s vec postoji!\n\r", label);
+		exit(-1);
+	}
+
 	int offset = getCurrentCollectionsCount(sectionsCollection);
 	SymbolTableEntry *newSymbolTableEntry = makeSymbolTableEntry(label, sectionsCollection->currentSection, offset);
 
 	addSymbolTableEntry(symbolTableEntryList, newSymbolTableEntry);
-
-	// dodavanje labele u tabelu simbola
-	/*if (symbolTableEntryList->list == NULL)
-	{
-		symbolTableEntryList->list = makeSymbolTableEntry(label, sectionsCollection->currentSection, offset);
-	}
-	else
-	{
-		SymbolTableEntry *newSymbolTableEntry = makeSymbolTableEntry(label, sectionsCollection->currentSection, offset);
-		addSymbolTableEntry(symbolTableEntryList, newSymbolTableEntry);
-	}*/
 }
 
 void parseDirective(SymbolTableEntry *symbolTableList, SectionsCollection *sectionsCollection, char *token)
@@ -159,14 +146,18 @@ void parseDirective(SymbolTableEntry *symbolTableList, SectionsCollection *secti
 	{
 		// nista se ne radi u prvom prolazu
 	}
-	else if (startsWith(ASCIZDIRECTIVE, token))
+	else if (startsWith(EXTERNDIRECTIVE, token))
+	{
+		parseExternDirective(token, sectionsCollection, symbolTableList);
+	}
+	/*else if (startsWith(ASCIZDIRECTIVE, token))
 	{
 		parseAsciiDirectives(token, 1, sectionsCollection);
 	}
 	else if (startsWith(ASCIIDIRECTIVE, token))
 	{
 		parseAsciiDirectives(token, 0, sectionsCollection);
-	}
+	}*/
 	else if (startsWith(CHARDIRECTIVE, token))
 	{
 		parseCharWordLongDirectives(token, sectionsCollection, CHARSIZE);

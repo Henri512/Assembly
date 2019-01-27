@@ -21,32 +21,81 @@ void initializeSectionIfEmpty(SectionsCollection *sectionsCollection, int index,
 	switch (sectionsCollection->currentSection)
 	{
 	case Text:
-		if (!sectionsCollection->textDataSection)
+		if (!sectionsCollection->textDataSection->marked)
 		{
-			sectionsCollection->textDataSection = makeSectionData(index, start, size, NULL);
+			sectionsCollection->textDataSection->marked = 1;
+		}
+		else
+		{
+			printf("\tSekcija %s je vec jednom pojavila u fajlu! Kraj asembliranja.", Sections[Text]);
+			exit(-1);
 		}
 		break;
 	case RoData:
-		if (!sectionsCollection->roDataSection)
+		if (!sectionsCollection->roDataSection->marked)
 		{
-			sectionsCollection->roDataSection = makeSectionData(index, start, size, NULL);
+			sectionsCollection->roDataSection->marked = 1;
+		}
+		else
+		{
+			printf("\tSekcija %s je vec jednom pojavila u fajlu! Kraj asembliranja.", Sections[RoData]);
+			exit(-1);
 		}
 		break;
 	case Data:
-		if (!sectionsCollection->dataDataSection)
+		if (!sectionsCollection->dataDataSection->marked)
 		{
-			sectionsCollection->dataDataSection = makeSectionData(index, start, size, NULL);
+			sectionsCollection->dataDataSection->marked = 1;
+		}
+		else
+		{
+			printf("\tSekcija %s je vec jednom pojavila u fajlu! Kraj asembliranja.", Sections[Data]);
+			exit(-1);
 		}
 		break;
 	case Bss:
-		if (!sectionsCollection->bssDataSection)
+		if (!sectionsCollection->bssDataSection->marked)
 		{
-			sectionsCollection->bssDataSection = makeSectionData(index, start, size, NULL);
+			sectionsCollection->bssDataSection->marked = 1;
+		}
+		else
+		{
+			printf("\tSekcija %s je vec jednom pojavila u fajlu! Kraj asembliranja.", Sections[Bss]);
+			exit(-1);
 		}
 		break;
 	default:
 		break;
 	}
+}
+
+char labelExists(SymbolTableEntryList *symbolTableEntryList, char *labelName)
+{
+	SymbolTableEntry *current = symbolTableEntryList->list;
+	char exists = 0;
+	while (current)
+	{
+		if (!strcmp(current->name, labelName))
+		{
+			exists = 1;
+		}
+		current = current->next;
+	}
+	return exists;
+}
+
+SymbolTableEntry *getEntryByLabelName(SymbolTableEntryList *symbolTableEntryList, char *labelName)
+{
+	SymbolTableEntry *current = symbolTableEntryList->list, *entry = NULL;
+	while (current)
+	{
+		if (!strcmp(current->name, labelName))
+		{
+			entry = current;
+		}
+		current = current->next;
+	}
+	return entry;
 }
 
 char getTokenSectionValue(char *token) 
@@ -103,4 +152,145 @@ char *getInstructionFromToken(char *token)
 	strncpy(instruction, token, i);
 	instruction[i] = '\0';
 	return instruction;
+}
+
+void resetCounters(SectionsCollection *sectionsCollection)
+{
+	if (sectionsCollection->bssDataSection)
+	{
+		sectionsCollection->bssDataSection->size = 0;
+		sectionsCollection->bssDataSection->start = 0;
+		sectionsCollection->bssDataSection->marked = 0;
+	}
+	if (sectionsCollection->dataDataSection)
+	{
+		sectionsCollection->dataDataSection->size = 0;
+		sectionsCollection->dataDataSection->start = 0;
+		sectionsCollection->dataDataSection->marked = 0;
+	}
+	if (sectionsCollection->roDataSection)
+	{
+		sectionsCollection->roDataSection->size = 0;
+		sectionsCollection->roDataSection->start = 0;
+		sectionsCollection->roDataSection->marked = 0;
+	}
+	if (sectionsCollection->textDataSection)
+	{
+		sectionsCollection->textDataSection->size = 0;
+		sectionsCollection->textDataSection->start = 0;
+		sectionsCollection->textDataSection->marked = 0;
+	}
+}
+
+
+void addToCurrentCollectionsCount(SectionsCollection *sectionsCollection, int size)
+{
+	switch (sectionsCollection->currentSection)
+	{
+	case Text:
+		sectionsCollection->textDataSection->size += size;
+		break;
+	case RoData:
+		sectionsCollection->roDataSection->size += size;
+		break;
+	case Data:
+		sectionsCollection->dataDataSection->size += size;
+		break;
+	case Bss:
+		sectionsCollection->bssDataSection->size += size;
+		break;
+	}
+}
+
+int getCurrentCollectionsCount(SectionsCollection *sectionsCollection)
+{
+	int counter = 0;
+	switch (sectionsCollection->currentSection)
+	{
+	case Text:
+		counter = sectionsCollection->textDataSection->size;
+		break;
+	case RoData:
+		counter = sectionsCollection->roDataSection->size;
+		break;
+	case Data:
+		counter = sectionsCollection->dataDataSection->size;
+		break;
+	case Bss:
+		counter = sectionsCollection->bssDataSection->size;
+		break;
+	}
+	return counter;
+}
+
+int getCurrentOffset(SectionsCollection *sectionsCollection)
+{
+	int counter = 0;
+	switch (sectionsCollection->currentSection)
+	{
+	case Text:
+		counter = sectionsCollection->textDataSection ? sectionsCollection->textDataSection->size + sectionsCollection->textDataSection->start : 0;
+		break;
+	case RoData:
+		counter = sectionsCollection->roDataSection ? sectionsCollection->roDataSection->size + sectionsCollection->roDataSection->start : 0;
+		break;
+	case Data:
+		counter = sectionsCollection->dataDataSection ? sectionsCollection->dataDataSection->size + sectionsCollection->dataDataSection->start : 0;
+		break;
+	case Bss:
+		counter = sectionsCollection->bssDataSection ? sectionsCollection->bssDataSection->size + sectionsCollection->bssDataSection->start : 0;
+		break;
+	}
+	return counter;
+}
+
+// enum Sections { Text, Data, RoData, Bss };
+void parseSection(SectionsCollection *sectionsCollection, char section)
+{
+	int currentOffset = getCurrentOffset(sectionsCollection);
+	sectionsCollection->currentSection = section;
+	initializeSectionIfEmpty(sectionsCollection, 0, currentOffset, 0);
+}
+
+void addCharContentToCurrentSection(SectionsCollection *sectionsCollection, char content)
+{
+	switch (sectionsCollection->currentSection)
+	{
+	case Text:
+		addCharContentToSection(sectionsCollection->textDataSection, content);
+		break;
+	case RoData:
+		addCharContentToSection(sectionsCollection->roDataSection, content);
+		break;
+	case Data:
+		addCharContentToSection(sectionsCollection->dataDataSection, content);
+		break;
+	case Bss:
+		addCharContentToSection(sectionsCollection->bssDataSection, content);
+		break;
+	}
+}
+
+void addIntContentToCurrentSection(SectionsCollection *sectionsCollection, int content)
+{
+	char firstByte = (char)content & 0xff;
+	char secondByte = (char)(content >> 8) & 0xff;
+	char thirdByte = (char)(content >> 16) & 0xff;
+	char fourthByte = (char)(content >> 24) & 0xff;
+	// printBinaryChar(firstByte);
+	// printBinaryChar(secondByte);
+	addCharContentToCurrentSection(sectionsCollection, firstByte);
+	addCharContentToCurrentSection(sectionsCollection, secondByte);
+	addCharContentToCurrentSection(sectionsCollection, thirdByte);
+	addCharContentToCurrentSection(sectionsCollection, fourthByte);
+}
+
+void addWordContentToCurrentSection(SectionsCollection *sectionsCollection, int content)
+{
+	char firstByte = (char)content & 0xff;
+	char secondByte = (char)(content >> 8) & 0xff;
+	// printBinaryChar(firstByte);
+	// printBinaryChar(secondByte);
+	addCharContentToCurrentSection(sectionsCollection, firstByte);
+	addCharContentToCurrentSection(sectionsCollection, secondByte);
 }

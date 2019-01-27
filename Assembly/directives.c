@@ -1,9 +1,13 @@
+#include <math.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include "directives.h"
 #include "sections.h"
 #include "parser_helpers.h"
 #include "string_helpers.h"
-#include <math.h>
+#include "section_helpers.h"
 
+// First Pass
 void parseAsciiDirectives(char *token, char hasZeroByte, SectionsCollection *sectionsCollection)
 {
 	TokenList *tokenList = getInstructionsTokens(token);
@@ -24,6 +28,32 @@ void parseAsciiDirectives(char *token, char hasZeroByte, SectionsCollection *sec
 	freeTokenList(tokenList);
 }
 
+void parseExternDirective(char *token, SectionsCollection *sectionsCollection, SymbolTableEntryList *symbolTableEntryList)
+{
+	TokenList *tokenList = getInstructionsTokens(token);
+	int i, valueLength = 0;
+	for (i = 1; i < tokenList->size; i++)
+	{
+		char *directiveValue = rightTrim(tokenList->tokens[i], ",");
+		addExternDirectiveToSymbolTableList(symbolTableEntryList, directiveValue);
+	}
+	freeTokenList(tokenList);
+}
+
+void addExternDirectiveToSymbolTableList(SymbolTableEntryList *symbolTableEntryList, char *directiveValue)
+{
+	if (labelExists(symbolTableEntryList, directiveValue))
+	{
+		printf("Simbol %s vec postoji!\n\r", directiveValue);
+		exit(-1);
+	}
+
+	SymbolTableEntry *newSymbolTableEntry = makeSymbolTableEntry(directiveValue, Unknown, 0);
+	newSymbolTableEntry->sectionType = Global;
+
+	addSymbolTableEntry(symbolTableEntryList, newSymbolTableEntry);
+}
+
 void parseCharWordLongDirectives(char *token, SectionsCollection *sectionsCollection, char size)
 {
 	TokenList *tokenList = getInstructionsTokens(token);
@@ -31,50 +61,8 @@ void parseCharWordLongDirectives(char *token, SectionsCollection *sectionsCollec
 	for (i = 1; i < tokenList->size; i++)
 	{
 		char *directiveValue = rightTrim(tokenList->tokens[i], ",");
-		valueLength = strlen(directiveValue);		
+		valueLength = strlen(directiveValue);
 		byteCount = byteCount + size;
-	}
-	addToCurrentCollectionsCount(sectionsCollection, byteCount);
-	freeTokenList(tokenList);
-}
-
-void parseCharDirective(char *token, SectionsCollection *sectionsCollection)
-{
-	TokenList *tokenList = getInstructionsTokens(token);
-	int i, valueLength = 0, byteCount = 0;
-	for (i = 1; i < tokenList->size; i++)
-	{
-		char *directiveValue = rightTrim(tokenList->tokens[i], ",");
-		valueLength = strlen(directiveValue);
-		char isValueValidHex = directiveValue[0] == '0' && directiveValue[1] == 'x' && valueLength > 2 && valueLength < 5;
-		char isValueValidChar = directiveValue[0] == '\'' && directiveValue[valueLength - 1] && (valueLength == 3 || (valueLength == 4 && directiveValue[1] == '\\'));
-		if (!isValueValidHex && !isValueValidChar)		
-		{
-			printf("Greska u parsiranju direktive %s, %s nije validna vrednost!", token, directiveValue);
-			exit(-1);
-		}
-		byteCount = byteCount + CHARSIZE;
-	}
-	addToCurrentCollectionsCount(sectionsCollection, byteCount);
-	freeTokenList(tokenList);
-}
-
-void parseWordDirective(char *token, SectionsCollection *sectionsCollection)
-{
-	TokenList *tokenList = getInstructionsTokens(token);
-	int i, valueLength = 0, byteCount = 0;
-	for (i = 1; i < tokenList->size; i++)
-	{
-		char *directiveValue = rightTrim(tokenList->tokens[i], ",");
-		valueLength = strlen(directiveValue);
-		char isValueValidHex = directiveValue[0] == '0' && directiveValue[1] == 'x' && valueLength > 2 && valueLength < 7;
-		char isValueValidNum = directiveValue[0] == '\'' && directiveValue[valueLength - 1] && (valueLength == 3 || (valueLength == 4 && directiveValue[1] == '\\'));
-		if (!isValueValidHex && !isValueValidNum)
-		{
-			printf("Greska u parsiranju direktive %s, %s nije validna vrednost!", token, directiveValue);
-			exit(-1);
-		}
-		byteCount = byteCount + WORDSIZE;
 	}
 	addToCurrentCollectionsCount(sectionsCollection, byteCount);
 	freeTokenList(tokenList);
@@ -114,4 +102,214 @@ void parseSkipDirective(char *token, SectionsCollection *sectionsCollection)
 	}
 	addToCurrentCollectionsCount(sectionsCollection, byteCount);
 	freeTokenList(tokenList);
+}
+
+// Second Pass
+void parseGlobalDirective(char *token, SymbolTableEntryList *symbolTableEntryList)
+{
+	TokenList *tokenList = getInstructionsTokens(token);
+	int i, valueLength = 0, byteCount = 0;
+	for (i = 1; i < tokenList->size; i++)
+	{
+		char *directiveValue = rightTrim(tokenList->tokens[i], ",");
+		setGlobal(directiveValue, symbolTableEntryList);
+	}
+	freeTokenList(tokenList);
+}
+
+//void parseAsciiDirectivesSP(char *token, char hasZeroByte, SectionsCollection *sectionsCollection)
+//{
+//	TokenList *tokenList = getInstructionsTokens(token);
+//	int i, valueLength = 0, byteCount = 0;
+//	if (tokenList->size == 1)
+//	{
+//		printf("Greska u parsiranju direktive \'%s\'!", token);
+//		exit(-1);
+//	}
+//	if (tokenList->size == 2)
+//	{
+//		addContentToCurrentSection(sectionsCollection, tokenList->tokens[1], strlen(tokenList->tokens[1]) + hasZeroByte ? 1 : 0);
+//	}
+//	else
+//	{
+//		char *tmpContent = (char*)malloc(sizeof(char) * strlen(token) - strlen(tokenList->tokens[0] + 1));
+//		for (i = 1; i < tokenList->size; i++)
+//		{
+//			char *directiveValue = rightTrim(tokenList->tokens[i], ",");
+//			valueLength = strlen(directiveValue);
+//			if (directiveValue[0] != '"' || directiveValue[valueLength - 1] != '"')
+//			{
+//				printf("Greska u parsiranju direktive %s, %s nije validna vrednost!", token, directiveValue);
+//				exit(-1);
+//			}
+//			byteCount = byteCount + valueLength - 2;
+//		}
+//	}
+//	freeTokenList(tokenList);
+//}
+
+void parseCharWordLongDirectivesSP(SymbolTableEntryList *symbolTableEntryList, char *token, SectionsCollection *sectionsCollection, char size)
+{
+	TokenList *tokenList = getInstructionsTokens(token);
+	SymbolTableEntry *entry = NULL;
+	int i, valueLength = 0, byteCount = 0;
+	for (i = 1; i < tokenList->size; i++)
+	{
+		char *directiveValue = rightTrim(tokenList->tokens[i], ",\'");
+		directiveValue = leftTrim(tokenList->tokens[i], "\'");
+		valueLength = strlen(directiveValue);
+		entry = getEntryByLabelName(symbolTableEntryList, directiveValue);
+		if (entry)
+		{
+			addDirectiveRelDataToSymbolTableList(symbolTableEntryList, sectionsCollection, entry->name,
+				entry->section, entry->sectionType == Global ? 1: entry->offset);
+			addLabelOffsetToContent(sectionsCollection, entry->offset, size);
+		}
+		else
+		{
+			validateAndAddCWLDirectiveContent(sectionsCollection, directiveValue, size, valueLength);
+		}
+	}
+	freeTokenList(tokenList);
+}
+
+void parseAlignDirectiveSP(char *token, SectionsCollection *sectionsCollection)
+{
+	TokenList *tokenList = getInstructionsTokens(token);
+	int alignNumber = 0, counter, round;
+	char *ptr;
+	if (tokenList->size == 2)
+	{
+		char *directiveValue = rightTrim(tokenList->tokens[1], ",");
+		alignNumber = strtol(directiveValue, &ptr, 10);
+		if (alignNumber > 0)
+		{
+			counter = getCurrentCollectionsCount(sectionsCollection);
+			round = (int)pow(2, alignNumber);
+			if (counter % round != 0)
+			{
+				int i = round - (counter % round);
+				for (i; i > 0; i--)
+				{
+					addCharContentToCurrentSection(sectionsCollection, '\0');
+				}
+			}
+		}
+	}
+	freeTokenList(tokenList);
+}
+
+void parseSkipDirectiveSP(char *token, SectionsCollection *sectionsCollection)
+{
+	TokenList *tokenList = getInstructionsTokens(token);
+	int byteCount = 0;
+	char *ptr;
+	if (tokenList->size == 2)
+	{
+		char *directiveValue = rightTrim(tokenList->tokens[1], ",");
+		byteCount = strtol(directiveValue, &ptr, 10);
+		int i = byteCount;
+		for (i; i > 0; i--)
+		{
+			addCharContentToCurrentSection(sectionsCollection, '\0');
+		}
+	}
+	freeTokenList(tokenList);
+}
+
+void validateAndAddCWLDirectiveContent(SectionsCollection *sectionsCollection, char *directiveValue, char size, int length)
+{
+	char isValid = 0, isHexChar, *pEnd;
+	long num = -1;
+	switch (size)
+	{
+	case CHARSIZE:
+		isValid = isStringRegularChar(directiveValue, length);
+		isHexChar = isStringHexChar(directiveValue, length);
+		if (isValid)
+		{
+			char value = getCharFromDirectiveValue(directiveValue);
+			addCharContentToCurrentSection(sectionsCollection, value);
+		}
+		else if (isHexChar)
+		{
+			num = strtol(directiveValue, &pEnd, 16);
+			addCharContentToCurrentSection(sectionsCollection, (char)num);
+		}
+		else
+		{
+			printf("Greska u parsiranju direktive, %s nije validna vrednost!", directiveValue);
+			exit(-1);
+		}
+		break;
+	case WORDSIZE:
+		num = strtol(directiveValue, &pEnd, 0);
+		isValid = num != 0 && num != LONG_MAX && num != LONG_MIN;
+		if (isValid)
+		{
+			addCharContentToCurrentSection(sectionsCollection, (char)num & 0xff);
+			addCharContentToCurrentSection(sectionsCollection, (char)(num >> 8) & 0xff);
+		}
+		else
+		{
+			printf("Greska u parsiranju direktive, %s nije validna vrednost!", directiveValue);
+			exit(-1);
+		}
+		break;
+	case LONGSIZE:
+		num = strtol(directiveValue, &pEnd, 0);
+
+		isValid = num != 0 && num != LONG_MAX && num != LONG_MIN;
+		if (isValid)
+		{
+			char firstByte = (char)num & 0xff;
+			char secondByte = (char)(num >> 8) & 0xff;
+			char thirdByte = (char)(num >> 16) & 0xff;
+			char fourthByte = (char)(num >> 24) & 0xff;
+			// printBinaryChar(firstByte);
+			// printBinaryChar(secondByte);
+			addCharContentToCurrentSection(sectionsCollection, firstByte);
+			addCharContentToCurrentSection(sectionsCollection, secondByte);
+			addCharContentToCurrentSection(sectionsCollection, thirdByte);
+			addCharContentToCurrentSection(sectionsCollection, fourthByte);
+		}
+		else
+		{
+			printf("Greska u parsiranju direktive, %s nije validna vrednost!", directiveValue);
+			exit(-1);
+		}
+		break;
+	}
+}
+
+void addLabelOffsetToContent(SectionsCollection *sectionsCollection, int offset, char size)
+{
+	switch (size)
+	{
+	case CHARSIZE:
+		addCharContentToCurrentSection(sectionsCollection, (char)offset & 0xff);
+		break;
+	case WORDSIZE:
+		addCharContentToCurrentSection(sectionsCollection, (char)offset & 0xff);
+		addCharContentToCurrentSection(sectionsCollection, (char)(offset >> 8) & 0xff);
+		break;
+	case LONGSIZE:
+		addCharContentToCurrentSection(sectionsCollection, (char)offset & 0xff);
+		addCharContentToCurrentSection(sectionsCollection, (char)(offset >> 8) & 0xff);
+		addCharContentToCurrentSection(sectionsCollection, (char)(offset >> 16) & 0xff);
+		addCharContentToCurrentSection(sectionsCollection, (char)(offset >> 24) & 0xff);
+		break;
+	}
+}
+
+void addDirectiveRelDataToSymbolTableList(SymbolTableEntryList *symbolTableEntryList, SectionsCollection *sectionsCollection,
+	char *label, enum SectionEnum section, int offset)
+{
+	if (!labelExists(symbolTableEntryList, label))
+	{
+		SymbolTableEntry *newSymbolTableEntry = makeSymbolTableEntry(label, section, offset);
+		newSymbolTableEntry->sectionType = Global;
+
+		addSymbolTableEntry(symbolTableEntryList, newSymbolTableEntry);
+	}
 }
