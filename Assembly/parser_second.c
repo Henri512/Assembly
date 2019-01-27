@@ -108,7 +108,7 @@ void parseDirectiveSecondPass(SymbolTableEntryList *symbolTableEntryList, Sectio
 	{
 		parseCharWordLongDirectivesSP(symbolTableEntryList, token, sectionsCollection, CHARSIZE);
 	}
-	else if (startsWith(WORDDIRECRTIVE, token))
+	else if (startsWith(WORDDIRECTIVE, token))
 	{
 		parseCharWordLongDirectivesSP(symbolTableEntryList, token, sectionsCollection, WORDSIZE);
 	}

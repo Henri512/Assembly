@@ -40,4 +40,4 @@ void processLabelValue(char *labelValue, InstructionData *instructionData, Symbo
 
 void addOperandToContent(InstructionData *instructionData, int content, char operandIndex);
 
-void addNewRelDataToSymbolTableList(SymbolTableEntryList *symbolTableEntryList, SectionsCollection *sectionsCollection, char * label, enum SectionEnum section, int offset);
+int addNewRelDataToSymbolTableList(SymbolTableEntryList *symbolTableEntryList, SectionsCollection *sectionsCollection, char * label, enum SectionEnum section, int offset);

@@ -23,6 +23,8 @@ void addLabelOffsetToContent(SectionsCollection *sectionsCollection, int offset,
 
 void addDirectiveRelDataToSymbolTableList(SymbolTableEntryList *symbolTableEntryList, SectionsCollection *sectionsCollection, char *label, enum SectionEnum section, int offset);
 
-void addLabelToContent(SectionsCollection * sectionsCollection, int offset, char size);
+void handleLabelInCharWordLongDirectives(SectionsCollection *sectionsCollection, int directiveSizeInBytes, enum SectionEnum section, int labelNum);
+
+void addLabelToContent(SectionsCollection *sectionsCollection, int offset, char size);
 
 void parseAsciiDirectivesSP(char *token, char hasZeroByte, SectionsCollection *sectionsCollection);

@@ -4,7 +4,7 @@
 #define EXTERNDIRECTIVE ".extern"
 
 #define CHARDIRECTIVE ".char"
-#define WORDDIRECRTIVE ".word"
+#define WORDDIRECTIVE ".word"
 #define LONGDIRECTIVE ".long"
 #define ALIGNDIRECTIVE ".align"
 #define SKIPDIRECTIVE ".skip"
@@ -40,6 +40,8 @@ static const char *Registers[] = { "r0", "r1", "r2", "r3", "r4", "r5", "r6", "r7
 
 static const char *Sections[] = { ".text", ".data", ".rodata", ".bss", "unknown" };
 
+static const char *RelocationTypes[] = { "R_386_PC16", "R_386_16", "R_386_8", "R_386_16", "R_386_32" };
+
 enum SectionType { Local, Global };
 
 enum SectionsEnum { Text, Data, RoData, Bss, Unknown = 127 };
@@ -51,6 +53,6 @@ enum ConditionCodes { Eq, Ne, Gt, Al };
 
 enum OperandTypes { Dst, Src };
 
-enum RelocationTypes { PCREL, ABS};
+enum RelocationTypesEnum { PCREL, ABS, CHARDIR, WORDDIR, LONGDIR };
 
 enum AddressingCodes { Imm, RegDir, Mem, RegInd };

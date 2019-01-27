@@ -162,7 +162,7 @@ void parseDirective(SymbolTableEntry *symbolTableList, SectionsCollection *secti
 	{
 		parseCharWordLongDirectives(token, sectionsCollection, CHARSIZE);
 	}
-	else if (startsWith(WORDDIRECRTIVE, token))
+	else if (startsWith(WORDDIRECTIVE, token))
 	{
 		parseCharWordLongDirectives(token, sectionsCollection, WORDSIZE);
 	}

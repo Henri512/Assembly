@@ -34,7 +34,7 @@ typedef struct relocationData
 	char sectionType;
 	int offset;
 	int size;
-	char relocationType;
+	enum RelocationTypesEnum relocationType;
 	int num;
 	struct relocationData *next;
 } RelocationData;

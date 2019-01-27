@@ -6,6 +6,7 @@
 #include "parser_helpers.h"
 #include "string_helpers.h"
 #include "section_helpers.h"
+#include "instruction_helpers.h"
 
 // First Pass
 void parseExternDirective(char *token, SectionsCollection *sectionsCollection, SymbolTableEntryList *symbolTableEntryList)
@@ -111,8 +112,9 @@ void parseCharWordLongDirectivesSP(SymbolTableEntryList *symbolTableEntryList, c
 		// ako se referencira labela u direktivi proveravamo da li je potrebno dodati realokacioni zapis
 		if (entry)
 		{
-			addDirectiveRelDataToSymbolTableList(symbolTableEntryList, sectionsCollection, entry->name,
-				entry->section, entry->sectionType == Global ? 1: entry->offset);
+			handleLabelInCharWordLongDirectives(sectionsCollection, size, entry->section, entry->num);
+			// addDirectiveRelDataToSymbolTableList(symbolTableEntryList, sectionsCollection, entry->name,
+				// entry->section, entry->sectionType == Global ? 1: entry->offset);
 			addLabelOffsetToContent(sectionsCollection, entry->offset, size);
 		}
 		else
@@ -261,5 +263,23 @@ void addDirectiveRelDataToSymbolTableList(SymbolTableEntryList *symbolTableEntry
 		newSymbolTableEntry->sectionType = Global;
 
 		addSymbolTableEntry(symbolTableEntryList, newSymbolTableEntry);
+	}
+}
+
+void handleLabelInCharWordLongDirectives(SectionsCollection *sectionsCollection, int directiveSizeInBytes, enum SectionEnum section, int labelNum)
+{
+	if (sectionsCollection->currentSection != section)
+	{
+		int offset = getCurrentOffset(sectionsCollection);
+		char relocationType = CHARDIR;
+		if (directiveSizeInBytes == WORDSIZE)
+		{
+			relocationType++;
+		}
+		else if (directiveSizeInBytes == LONGSIZE)
+		{
+			relocationType += 2;
+		}
+		addNewRelocationData(sectionsCollection, section, offset, relocationType, labelNum);
 	}
 }

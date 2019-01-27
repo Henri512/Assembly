@@ -406,13 +406,13 @@ void processLabelValue(char *labelValue, InstructionData *instructionData,
 	else
 	{
 		symbol = getSymbolByName(symbolTableEntryList, labelValue);
-		//// ako simbol postoji gledamo da li je lokalni ili globalni
-		//if (symbol)
-		//{			
+		sectionSymbol = getSymbolByName(symbolTableEntryList, getSectionValue(symbol ? symbol->section : Unknown));
+		// ako simbol postoji gledamo da li je lokalni ili globalni
+		if (symbol)
+		{
 			// ako simbol nije iz tekuce sekcije
 			if (symbol->section != sectionsCollection->currentSection)
 			{
-				sectionSymbol = getSymbolByName(symbolTableEntryList, getSectionValue(symbol->section));
 				// ako se radi o pc relativnom adresiranju - jmp $label
 				if (isPcRelAddr)
 				{
@@ -450,20 +450,27 @@ void processLabelValue(char *labelValue, InstructionData *instructionData,
 						addNewRelocationData(sectionsCollection, symbol->section, offset + WORDSIZE, ABS, symbol->num);
 						break;
 					}
-
 				}
 			}
-		//}
-		//// ako simbol nije u tabeli simbola dodajemo ga kao globalni i pravimo realokacioni zapis
-		//else
-		//{
-		//	// handle non existing labels handle(symbolTableEntryList)
-		//	tmpLabel = getNewString(strlen(labelValue) + 1);
-		//	strcpy(tmpLabel, labelValue);
-		//	addNewRelDataToSymbolTableList(symbolTableEntryList, sectionsCollection, tmpLabel, Unknown, UNKNOWNLABELOFFSET);
-		//	// add relocation info for this instruction data
-		//	addNewRelocationData(sectionsCollection, Unknown, offset, isPcRelAddr ? PCREL : ABS, symbolTableEntryList->count);
-		//}
+		}
+		// ako simbol nije u tabeli simbola dodajemo ga kao globalni i pravimo realokacioni zapis
+		else
+		{
+			// handle non existing labels handle(symbolTableEntryList)
+			tmpLabel = getNewString(strlen(labelValue) + 1);
+			strcpy(tmpLabel, labelValue);
+			int num = addNewRelDataToSymbolTableList(symbolTableEntryList, sectionsCollection, tmpLabel, Unknown, UNKNOWNLABELOFFSET);
+			if (isPcRelAddr)
+			{
+				instructionData->additionalWord = -WORDSIZE;
+				addNewRelocationData(sectionsCollection, Unknown, offset + WORDSIZE, PCREL, sectionSymbol->num);
+			}
+			else
+			{
+				instructionData->additionalWord = 0;
+				addNewRelocationData(sectionsCollection, Unknown, offset + WORDSIZE, ABS, num);
+			}
+		}
 	}
 }
 
@@ -537,10 +544,11 @@ void addOperandToContent(InstructionData *instructionData, int content, char ope
 	}
 }
 
-void addNewRelDataToSymbolTableList(SymbolTableEntryList *symbolTableEntryList, SectionsCollection *sectionsCollection,
+int addNewRelDataToSymbolTableList(SymbolTableEntryList *symbolTableEntryList, SectionsCollection *sectionsCollection,
 	char *label, enum SectionEnum section, int offset)
 {
 	char *newLabel = NULL;
+	int num = -1;
 	if (!labelExists(symbolTableEntryList, label))
 	{
 		newLabel = getNewString(strlen(label) + 1);
@@ -549,5 +557,7 @@ void addNewRelDataToSymbolTableList(SymbolTableEntryList *symbolTableEntryList, 
 		newSymbolTableEntry->sectionType = Global;
 
 		addSymbolTableEntry(symbolTableEntryList, newSymbolTableEntry);
+		num = newSymbolTableEntry->num;
 	}
+	return num;
 }
