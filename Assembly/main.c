@@ -12,7 +12,6 @@ int main(int argc, char* argv[])
 	int dummy = 0;
 	SectionsCollection *sectionsCollection = getEmptySectionsCollection();
 	SymbolTableEntryList *symbolTableEntryList = getEmptySymbolTableEntryList();
-	// StringData *list = NULL;
 	if (argc < 2)
 	{
 		printf("Niste uneli naziv fajla!");
@@ -23,8 +22,6 @@ int main(int argc, char* argv[])
 		printf("Fajl sa zadatim imenom ne postoji!");
 		exit(-1);
 	}
-
-	// list = GetInputList(argv[1]);
 
 	executeFirstPass(symbolTableEntryList, sectionsCollection, argv[1]);
 

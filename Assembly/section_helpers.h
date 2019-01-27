@@ -25,7 +25,7 @@ int getCurrentCollectionsCount(SectionsCollection *sectionsCollection);
 
 int getCurrentOffset(SectionsCollection *sectionsCollection);
 
-void parseSection(SectionsCollection *sectionsCollection, char section);
+void parseSection(SectionsCollection *sectionsCollection, SymbolTableEntryList *symbolTableEntryList, char section, char *token);
 
 void addCharContentToCurrentSection(SectionsCollection *sectionsCollection, char content);
 

@@ -35,7 +35,7 @@ void executeFirstPass(SymbolTableEntryList *symbolTableEntryList, SectionsCollec
 				printf("\tNaredba %s nije validna, kraj asembliranja!", token);
 				exit(-1);
 			}
-			printf("In %s section:\n\r", getSectionValue(sectionsCollection->currentSection));
+			// printf("In %s section:\n\r", getSectionValue(sectionsCollection->currentSection));
 
 			parseTokenFirstPass(symbolTableEntryList, sectionsCollection, token);
 		}
@@ -53,7 +53,7 @@ void parseTokenFirstPass(SymbolTableEntryList *symbolTableEntryList, SectionsCol
 	char instructionValue, sectionValue;
 	if ((sectionValue = getTokenSectionValue(token)) > -1)
 	{
-		parseSection(sectionsCollection, sectionValue);
+		parseSection(sectionsCollection, symbolTableEntryList, sectionValue, token);
 	}
 	else if (isTokenLabel(token))
 	{

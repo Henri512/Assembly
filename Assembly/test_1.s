@@ -12,21 +12,19 @@ output: .long 0xFFFE	# adresa za stampanje na standardni izlaz
 
 .text
 main:				# pocetak programa
-	jmp *50
-	jmp r7[mend]
+	#jmp *50
+	#jmp r7[mend]
 	#ret 1
-	call r4[mdata]
-	push $20
-	push $mdata
-	pop r0
-	pop $20
-	push $unknown
+	#call r4[mdata]
+	#push &mdata
+	#pop r0
+	#push &unknown
 	sub r0, r0		# r0 = 0
 	mov r1, r0[mbegin]	# r1 = mdata, pocetak niza za ispis
 	mov r2, r0[mbound]	# r2 = mend, kraj niza za ispis
 	push r2			# stavljanje parametrara na stek
 	push r1			# 
-	call print		# poziv print
+	call &print		# poziv print
 	add sp, 4		# skidanje sa steka
 
 print:	
@@ -43,12 +41,12 @@ print:
 	
 loop:	
 	cmp r4, r3	# poredjenje sa krajem
-	jmp_eq exit			# izlazak iz petlje
+	jmp_eq &exit			# izlazak iz petlje
 	mov r1, r4		# r1 = mdata[r4], dohvatanje sledeceg znaka za ispis
 	push r1
-	call printf		# printf(r1), ispis znaka
+	call &printf		# printf(r1), ispis znaka
 	add r4, 1		# r4++, pomeranje na sledecu lokaciju
-	jmp loop		# povratak na pocetak petlje
+	jmp &loop		# povratak na pocetak petlje
 	mov r1, &psw	
 	mov_ne r1, r2
 	mov_gt r3, r4

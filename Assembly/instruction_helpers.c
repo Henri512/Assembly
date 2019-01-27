@@ -1,5 +1,6 @@
 #include "instructions.h"
 #include "instruction_helpers.h"
+#include "string_helpers.h"
 
 char getInstructionSize(TokenList *tokenList)
 {
@@ -174,25 +175,28 @@ void setInstructionOpCode(InstructionData *instructionData)
 	int length = strlen(instruction);
 	for (int i = 0; i < INSTRUCTIONSCOUNT; i++)
 	{
-		if (!strcmp(instruction + length - 3, "_eq"))
+		if (startsWith(Instructions[i], instruction))
 		{
-			instructionData->opCode = i;
-			instructionData->condition = Eq;
-		}
-		else if (!strcmp(instruction + length - 3, "_ne"))
-		{
-			instructionData->opCode = i;
-			instructionData->condition = Ne;
-		}
-		else if (!strcmp(instruction + length - 3, "_gt"))
-		{
-			instructionData->opCode = i;
-			instructionData->condition = Gt;
-		}
-		else if (!strcmp(Instructions[i], instruction))
-		{
-			instructionData->opCode = i;
-			instructionData->condition = Al;
+			if (!strcmp(instruction + length - 3, "_eq"))
+			{
+				instructionData->opCode = i;
+				instructionData->condition = Eq;
+			}
+			else if (!strcmp(instruction + length - 3, "_ne"))
+			{
+				instructionData->opCode = i;
+				instructionData->condition = Ne;
+			}
+			else if (!strcmp(instruction + length - 3, "_gt"))
+			{
+				instructionData->opCode = i;
+				instructionData->condition = Gt;
+			}
+			else if (!strcmp(Instructions[i], instruction))
+			{
+				instructionData->opCode = i;
+				instructionData->condition = Al;
+			}
 		}
 	}
 }
@@ -227,7 +231,7 @@ void addNewRelocationDataToSection(SectionData *sectionData, RelocationData *rel
 	}
 	else
 	{
-		while (sectionData->relData->next)
+		while (tmp->next)
 		{
 			tmp = tmp->next;
 		}

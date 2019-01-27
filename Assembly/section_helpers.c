@@ -245,11 +245,35 @@ int getCurrentOffset(SectionsCollection *sectionsCollection)
 }
 
 // enum Sections { Text, Data, RoData, Bss };
-void parseSection(SectionsCollection *sectionsCollection, char section)
+void parseSection(SectionsCollection *sectionsCollection, SymbolTableEntryList *symbolTableEntryList, char section, char *token)
 {
 	int currentOffset = getCurrentOffset(sectionsCollection);
 	sectionsCollection->currentSection = section;
 	initializeSectionIfEmpty(sectionsCollection, 0, currentOffset, 0);
+	// ako je token NULL onda je u pitanju drugi prolaz i nista se ne radi, inace se sekcija dodaje u tabelu simbola
+	if (token)
+	{
+		if (labelExists(symbolTableEntryList, token))
+		{
+			printf("\tLabela %s vec postoji!\n\r", token);
+			exit(-1);
+		}
+
+		int offset = getCurrentCollectionsCount(sectionsCollection);
+		char *sectionName = getNewString(strlen(token) + 1);
+		char section = 0, i;
+		strcpy(sectionName, token);
+		for (i = 0; i < 4; i++)
+		{
+			if (!strcmp(token, Sections[i]))
+			{
+				section = i;
+			}
+		}
+		SymbolTableEntry *newSymbolTableEntry = makeSymbolTableEntry(sectionName, section, offset);
+
+		addSymbolTableEntry(symbolTableEntryList, newSymbolTableEntry);
+	}	
 }
 
 void addCharContentToCurrentSection(SectionsCollection *sectionsCollection, char content)

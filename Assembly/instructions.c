@@ -5,6 +5,7 @@
 #include "section_helpers.h"
 #include "instruction_helpers.h"
 #include "string_helpers.h"
+#include "constants_helper.h"
 
 // First pass methods
 void parseInstruction(SymbolTableEntryList *symbolTableEntryList, SectionsCollection *sectionsCollection, char *token)
@@ -75,23 +76,26 @@ void fillInstructionData(InstructionData *instructionData, TokenList *tokenList,
 
 void setIntructionOperandsAddressing(InstructionData *instructionData, SymbolTableEntryList *symbolTableEntryList)
 {
-	if (instructionData->opCode == Ret || instructionData->opCode == Iret)
+	if (instructionData->dst || instructionData->src)
 	{
-		printf("Instrukcije \'ret\' i \'iret\' ne mogu sadrzati operande! Kraj izvrsavanja!\n\r");
-		exit(-1);
-	}
-	if (instructionData->dst)
-	{
-		setIntructionOperandAddressing(instructionData, symbolTableEntryList, Dst);
-	}
-	if (instructionData->src)
-	{
-		setIntructionOperandAddressing(instructionData, symbolTableEntryList, Src);
-		if (instructionData->dstAddresingCode != RegDir && instructionData->srcAddressingCode != RegDir)
+		if (instructionData->opCode == Ret || instructionData->opCode == Iret)
 		{
-			printf("U instrukciji \'%s %s, %s\' oba operanda zahtevaju dodatna 2 bajta a to nije dozvoljeno! Kraj izvrsavanja!\n\r",
-				instructionData->name, instructionData->dst, instructionData->src);
+			printf("Instrukcije \'ret\' i \'iret\' ne mogu sadrzati operande! Kraj izvrsavanja!\n\r");
 			exit(-1);
+		}
+		if (instructionData->dst)
+		{
+			setIntructionOperandAddressing(instructionData, symbolTableEntryList, Dst);
+		}
+		if (instructionData->src)
+		{
+			setIntructionOperandAddressing(instructionData, symbolTableEntryList, Src);
+			if (instructionData->dstAddresingCode != RegDir && instructionData->srcAddressingCode != RegDir)
+			{
+				printf("U instrukciji \'%s %s, %s\' oba operanda zahtevaju dodatna 2 bajta a to nije dozvoljeno! Kraj izvrsavanja!\n\r",
+					instructionData->name, instructionData->dst, instructionData->src);
+				exit(-1);
+			}
 		}
 	}
 }
@@ -106,12 +110,12 @@ void processTwoOperandsInstruction(InstructionData *instructionData, SymbolTable
 
 void processOneOperand(InstructionData *instructionData, SymbolTableEntryList *symbolTableEntryList, SectionsCollection *sectionsCollection, char operandIndex)
 {
-	char isOperandPsw = !strcmp(instructionData->dst, "psw");
-	char opLength = strlen(instructionData->dst);
 	char *additionalValue = NULL;
 	SymbolTableEntry *symbol = NULL;
 	char *op = operandIndex == 0 ? instructionData->dst : instructionData->src;
 	char addrCode = operandIndex == 0 ? instructionData->dstAddresingCode : instructionData->srcAddressingCode;
+	char isOperandPsw = !strcmp(op, "psw");
+	char opLength = strlen(op);
 	// parse second operand
 	switch (addrCode)
 	{
@@ -138,6 +142,14 @@ void processOneOperand(InstructionData *instructionData, SymbolTableEntryList *s
 				free(op);
 				op = getNewString(3);
 				strcpy(op, "r7");
+				if (operandIndex == 0)
+				{
+					instructionData->dst = op;
+				}
+				else
+				{
+					instructionData->src = op;
+				}
 			}
 			else
 			{
@@ -153,7 +165,7 @@ void processOneOperand(InstructionData *instructionData, SymbolTableEntryList *s
 				printf("Instrukcija \'%s %s\' ne sadrzi validan neposredni operand!\n\r", instructionData->name, op);
 				exit(-1);
 			}
-			instructionData->additionalWord = getOperandNumericValue(additionalValue);
+			instructionData->additionalWord = getOperandNumericValue(op);
 		}
 		break;
 	case RegInd:
@@ -168,7 +180,7 @@ void processOneOperand(InstructionData *instructionData, SymbolTableEntryList *s
 		else
 		{
 			additionalValue = getNewString(opLength - 3);
-			strncpy(additionalValue, op + 3, op - 4);
+			strncpy(additionalValue, op + 3, opLength - 4);
 			additionalValue[opLength - 4] = '\0';
 			processLabelValue(additionalValue, instructionData, symbolTableEntryList, sectionsCollection, 0);
 		}
@@ -319,12 +331,14 @@ void processOneOperandInstructions(InstructionData *instructionData, SymbolTable
 			printf("Instrukcija pop ne moze sadrzati neposredni operand!\n\r");
 			exit(-1);
 		}
-		if (!isOperandPsw)
+		// push 20
+		if (!isOperandPsw && operand[0] != '&')
 		{
 			int operandNum = getOperandNumericValue(operand);
 			instructionData->additionalWord = operandNum;
 		}
-		else if (operand[0] == '&')
+		// call &label, push &psw
+		else
 		{
 			additionalValue = getNewString(length);
 			strcpy(additionalValue, operand + 1);
@@ -382,7 +396,8 @@ void processOneOperandInstructions(InstructionData *instructionData, SymbolTable
 void processLabelValue(char *labelValue, InstructionData *instructionData,
 	SymbolTableEntryList *symbolTableEntryList, SectionsCollection *sectionsCollection, char isPcRelAddr)
 {
-	SymbolTableEntry *symbol = NULL;
+	SymbolTableEntry *symbol = NULL, *sectionSymbol = NULL;
+	char *tmpLabel = NULL;
 	int offset = getCurrentOffset(sectionsCollection);
 	if (isOperandNumber(labelValue))
 	{
@@ -391,39 +406,64 @@ void processLabelValue(char *labelValue, InstructionData *instructionData,
 	else
 	{
 		symbol = getSymbolByName(symbolTableEntryList, labelValue);
-		// ako simbol postoji gledamo da li je lokalni ili globalni
-		if (symbol)
-		{
-			// ako je tip sekcije Local onda dodajemo relokaciju samo u slucaju da simbol nije iz tekuce sekcije
-			if (symbol->sectionType == Local)
+		//// ako simbol postoji gledamo da li je lokalni ili globalni
+		//if (symbol)
+		//{			
+			// ako simbol nije iz tekuce sekcije
+			if (symbol->section != sectionsCollection->currentSection)
 			{
-				instructionData->additionalWord = symbol->offset;
-				if (symbol->section != sectionsCollection->currentSection)
+				sectionSymbol = getSymbolByName(symbolTableEntryList, getSectionValue(symbol->section));
+				// ako se radi o pc relativnom adresiranju - jmp $label
+				if (isPcRelAddr)
 				{
-					addNewRelocationData(sectionsCollection, symbol->section, offset + WORDSIZE, isPcRelAddr ? PCREL : ABS, symbol->num + 1);
+					switch (symbol->sectionType)
+					{
+					case Local:
+						instructionData->additionalWord = symbol->offset - WORDSIZE;
+						addNewRelocationData(sectionsCollection, symbol->section, offset + WORDSIZE, PCREL, sectionSymbol->num);
+						break;
+					case Global:
+						instructionData->additionalWord = -WORDSIZE;
+						addNewRelocationData(sectionsCollection, symbol->section, offset + WORDSIZE, PCREL, symbol->num);
+						break;
+					case Unknown:
+						instructionData->additionalWord = -WORDSIZE;
+						addNewRelocationData(sectionsCollection, symbol->section, offset + WORDSIZE, PCREL, sectionSymbol->num);
+						break;
+					}
+				}
+				// ako nije pc relativno adresiranje onda se pravi apsolutna relokacija
+				else
+				{
+					switch (symbol->sectionType)
+					{
+					case Local:
+						instructionData->additionalWord = symbol->offset;
+						addNewRelocationData(sectionsCollection, symbol->section, offset + WORDSIZE, ABS, sectionSymbol->num);
+						break;
+					case Global:
+						instructionData->additionalWord = 0;
+						addNewRelocationData(sectionsCollection, symbol->section, offset + WORDSIZE, ABS, symbol->num);
+						break;
+					case Unknown:
+						instructionData->additionalWord = 0;
+						addNewRelocationData(sectionsCollection, symbol->section, offset + WORDSIZE, ABS, symbol->num);
+						break;
+					}
+
 				}
 			}
-			// npr. ako je simbol definisan u direktivi .extern
-			else if (symbol->sectionType == Unknown)
-			{
-				instructionData->additionalWord = 0xFF;
-				addNewRelocationData(sectionsCollection, Global, offset + WORDSIZE, isPcRelAddr ? PCREL : ABS, symbol->num);
-			}
-			// ako je simbol globalni
-			else
-			{
-				instructionData->additionalWord = 0xFF;
-				addNewRelocationData(sectionsCollection, Global, offset + WORDSIZE, isPcRelAddr ? PCREL : ABS, symbol->num);
-			}
-		}
-		// ako simbol nije u tabeli simbola dodajemo ga kao globalni i pravimo realokacioni zapis
-		else
-		{
-			// handle non existing labels handle(symbolTableEntryList)
-			addNewRelDataToSymbolTableList(symbolTableEntryList, sectionsCollection, labelValue, Unknown, UNKNOWNLABELOFFSET);
-			// add relocation info for this instruction data
-			addNewRelocationData(sectionsCollection, Unknown, offset, isPcRelAddr ? PCREL : ABS, symbolTableEntryList->count);
-		}
+		//}
+		//// ako simbol nije u tabeli simbola dodajemo ga kao globalni i pravimo realokacioni zapis
+		//else
+		//{
+		//	// handle non existing labels handle(symbolTableEntryList)
+		//	tmpLabel = getNewString(strlen(labelValue) + 1);
+		//	strcpy(tmpLabel, labelValue);
+		//	addNewRelDataToSymbolTableList(symbolTableEntryList, sectionsCollection, tmpLabel, Unknown, UNKNOWNLABELOFFSET);
+		//	// add relocation info for this instruction data
+		//	addNewRelocationData(sectionsCollection, Unknown, offset, isPcRelAddr ? PCREL : ABS, symbolTableEntryList->count);
+		//}
 	}
 }
 

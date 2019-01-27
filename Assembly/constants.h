@@ -2,14 +2,13 @@
 #define ENDDIRECTIVE ".end"
 #define GLOBALDIRECTIVE ".global"
 #define EXTERNDIRECTIVE ".extern"
-// #define ASCIZDIRECTIVE ".asciz"
-// #define ASCIIDIRECTIVE ".ascii"
 
 #define CHARDIRECTIVE ".char"
 #define WORDDIRECRTIVE ".word"
 #define LONGDIRECTIVE ".long"
 #define ALIGNDIRECTIVE ".align"
 #define SKIPDIRECTIVE ".skip"
+#define ALIGNDIRFILLVALUE '\0'
 
 #define PCRELRELOCATION "R_386_PC16"
 #define CHARRELOCATION "R_386_8"
@@ -53,12 +52,5 @@ enum ConditionCodes { Eq, Ne, Gt, Al };
 enum OperandTypes { Dst, Src };
 
 enum RelocationTypes { PCREL, ABS};
-
-//Operandi se kodiraju tako što najviša dva bita određuju tip adresiranja. U tipovima adresiranja u
-//kojima je potreban registar, broj registra zapisan je u preostala 3 bita operanda. U slučaju da je za
-//adresiranje potreban i podatak koji predstavlja adresu, pomeraj ili neposrednu vrednost, zapisuje se u 2
-//bajta neposredno posle instrukcije. U jednoj instrukciji samo jedan operand može da zahteva 2 dodatna
-//bajta. Instrukcije koje zahtevaju dva podatka predstavljaju grešku. Takođe, sve kombinacije instrukcija i
-//operanada, za koje ne postoji razumno tumačenje, smatrati greškom.
 
 enum AddressingCodes { Imm, RegDir, Mem, RegInd };

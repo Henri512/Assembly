@@ -25,7 +25,7 @@ void executeSecondPass(SymbolTableEntryList *symbolTableEntryList, SectionsColle
 		{
 			if (isEndToken(token))
 			{
-				printf("\tDoslo se do .end direktive. Kraj prvog prolaza.");
+				printf("\tDoslo se do .end direktive. Kraj drugog prolaza.");
 				break;
 			}
 			else if (!isValidToken(token))
@@ -51,7 +51,7 @@ void *parseTokenSecondPass(SymbolTableEntryList *symbolTableEntryList, SectionsC
 	char instructionValue, sectionValue;
 	if ((sectionValue = getTokenSectionValue(token)) > -1)
 	{
-		parseSection(sectionsCollection, sectionValue);
+		parseSection(sectionsCollection, symbolTableEntryList, sectionValue, NULL);
 	}
 	else if (isTokenLabel(token))
 	{
@@ -92,6 +92,8 @@ void *parseLabelSecondPass(SymbolTableEntryList *symbolTableEntryList, SectionsC
 
 		labelContentToken = leftTrim(labelContentToken, "\t ");
 
+		
+
 		parseTokenSecondPass(symbolTableEntryList, sectionsCollection, labelContentToken);
 	}
 }
@@ -102,14 +104,6 @@ void parseDirectiveSecondPass(SymbolTableEntryList *symbolTableEntryList, Sectio
 	{
 		parseGlobalDirective(token, symbolTableEntryList);
 	}
-	/*else if (startsWith(ASCIZDIRECTIVE, token))
-	{
-		parseAsciiDirectivesSP(token, 1, sectionsCollection);
-	}
-	else if (startsWith(ASCIIDIRECTIVE, token))
-	{
-		parseAsciiDirectivesSP(token, 0, sectionsCollection);
-	}*/
 	else if (startsWith(CHARDIRECTIVE, token))
 	{
 		parseCharWordLongDirectivesSP(symbolTableEntryList, token, sectionsCollection, CHARSIZE);

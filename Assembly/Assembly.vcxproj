@@ -152,6 +152,7 @@
     <None Include="test_1.s" />
     <None Include="test_hi.s" />
     <None Include="test_hw.s" />
+    <None Include="test_rel.s" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

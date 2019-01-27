@@ -7,16 +7,16 @@ char *getSectionValue(enum SectionsEnum section)
 	switch (section)
 	{
 	case Text:
-		value = "text";
+		value = ".text";
 		break;
 	case RoData:
-		value = "roData";
+		value = ".roData";
 		break;
 	case Data:
-		value = "data";
+		value = ".data";
 		break;
 	case Bss:
-		value = "bss";
+		value = ".bss";
 		break;
 	default:
 		value = "Not Found!";

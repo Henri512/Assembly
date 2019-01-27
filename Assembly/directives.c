@@ -8,26 +8,6 @@
 #include "section_helpers.h"
 
 // First Pass
-void parseAsciiDirectives(char *token, char hasZeroByte, SectionsCollection *sectionsCollection)
-{
-	TokenList *tokenList = getInstructionsTokens(token);
-	int i, valueLength = 0, byteCount = 0;
-	for (i = 1; i < tokenList->size; i++)
-	{
-		char *directiveValue = rightTrim(tokenList->tokens[i], ",");
-		valueLength = strlen(directiveValue);
-		if (directiveValue[0] != '"' || directiveValue[valueLength - 1] != '"')
-		{
-			printf("Greska u parsiranju direktive %s, %s nije validna vrednost!", token, directiveValue);
-			exit(-1);
-		}
-		byteCount = byteCount + valueLength - 2;
-	}
-
-	addToCurrentCollectionsCount(sectionsCollection, byteCount);
-	freeTokenList(tokenList);
-}
-
 void parseExternDirective(char *token, SectionsCollection *sectionsCollection, SymbolTableEntryList *symbolTableEntryList)
 {
 	TokenList *tokenList = getInstructionsTokens(token);
@@ -117,37 +97,6 @@ void parseGlobalDirective(char *token, SymbolTableEntryList *symbolTableEntryLis
 	freeTokenList(tokenList);
 }
 
-//void parseAsciiDirectivesSP(char *token, char hasZeroByte, SectionsCollection *sectionsCollection)
-//{
-//	TokenList *tokenList = getInstructionsTokens(token);
-//	int i, valueLength = 0, byteCount = 0;
-//	if (tokenList->size == 1)
-//	{
-//		printf("Greska u parsiranju direktive \'%s\'!", token);
-//		exit(-1);
-//	}
-//	if (tokenList->size == 2)
-//	{
-//		addContentToCurrentSection(sectionsCollection, tokenList->tokens[1], strlen(tokenList->tokens[1]) + hasZeroByte ? 1 : 0);
-//	}
-//	else
-//	{
-//		char *tmpContent = (char*)malloc(sizeof(char) * strlen(token) - strlen(tokenList->tokens[0] + 1));
-//		for (i = 1; i < tokenList->size; i++)
-//		{
-//			char *directiveValue = rightTrim(tokenList->tokens[i], ",");
-//			valueLength = strlen(directiveValue);
-//			if (directiveValue[0] != '"' || directiveValue[valueLength - 1] != '"')
-//			{
-//				printf("Greska u parsiranju direktive %s, %s nije validna vrednost!", token, directiveValue);
-//				exit(-1);
-//			}
-//			byteCount = byteCount + valueLength - 2;
-//		}
-//	}
-//	freeTokenList(tokenList);
-//}
-
 void parseCharWordLongDirectivesSP(SymbolTableEntryList *symbolTableEntryList, char *token, SectionsCollection *sectionsCollection, char size)
 {
 	TokenList *tokenList = getInstructionsTokens(token);
@@ -159,6 +108,7 @@ void parseCharWordLongDirectivesSP(SymbolTableEntryList *symbolTableEntryList, c
 		directiveValue = leftTrim(tokenList->tokens[i], "\'");
 		valueLength = strlen(directiveValue);
 		entry = getEntryByLabelName(symbolTableEntryList, directiveValue);
+		// ako se referencira labela u direktivi proveravamo da li je potrebno dodati realokacioni zapis
 		if (entry)
 		{
 			addDirectiveRelDataToSymbolTableList(symbolTableEntryList, sectionsCollection, entry->name,
@@ -191,7 +141,7 @@ void parseAlignDirectiveSP(char *token, SectionsCollection *sectionsCollection)
 				int i = round - (counter % round);
 				for (i; i > 0; i--)
 				{
-					addCharContentToCurrentSection(sectionsCollection, '\0');
+					addCharContentToCurrentSection(sectionsCollection, ALIGNDIRFILLVALUE);
 				}
 			}
 		}
