@@ -3,6 +3,8 @@
 #include "constants.h"
 #include "sections.h"
 #include <string.h>
+#include <stdlib.h>
+#include <stdio.h>
 
 char isTokenLabel(char *token)
 {

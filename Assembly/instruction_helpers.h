@@ -2,6 +2,7 @@
 #include "constants.h"
 #include "instructions.h"
 #include "parser_helpers.h"
+#include "instructions.h"
 
 char getInstructionSize(TokenList *tokenList);
 
@@ -23,7 +24,7 @@ char isOperandNumber(char *operand);
 
 void setInstructionOpCode(InstructionData *instructionData);
 
-void addNewRelocationData(SectionsCollection *sectionsCollection, enum SectionsEnum sectionType, int offset, enum RelocationTypes relType, int num);
+void addNewRelocationData(SectionsCollection *sectionsCollection, enum SectionsEnum sectionType, int offset, enum RelocationTypesEnum relType, int num);
 
 void addNewRelocationDataToSection(SectionData *sectionData, RelocationData *relocationData);
 

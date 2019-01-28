@@ -1,6 +1,9 @@
 #include "instructions.h"
 #include "instruction_helpers.h"
 #include "string_helpers.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 char getInstructionSize(TokenList *tokenList)
 {
@@ -201,7 +204,7 @@ void setInstructionOpCode(InstructionData *instructionData)
 	}
 }
 
-void addNewRelocationData(SectionsCollection *sectionsCollection, enum SectionsEnum sectionType, int offset, enum RelocationTypes relType, int num)
+void addNewRelocationData(SectionsCollection *sectionsCollection, enum SectionsEnum sectionType, int offset, enum RelocationTypesEnum relType, int num)
 {
 	RelocationData *relData = makeRelocationData(sectionType, offset, relType, num);
 	

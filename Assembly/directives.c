@@ -1,6 +1,8 @@
-#include <math.h>
+#include <tgmath.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <limits.h>
+#include <string.h>
 #include "directives.h"
 #include "sections.h"
 #include "parser_helpers.h"
@@ -123,7 +125,7 @@ void parseCharWordLongDirectivesSP(SymbolTableEntryList *symbolTableEntryList, c
 			}
 			else
 			{
-				handleLabelInCharWordLongDirectives(sectionsCollection, size, entry->section, entry->num, oldLabel);
+				handleLabelInCharWordLongDirectives(sectionsCollection, size, entry->section, entry->num);
 			}
 			offset = sectionsCollection->currentSection != entry->section ? 0 : entry->offset;
 			addLabelOffsetToContent(sectionsCollection,offset, size);
@@ -266,7 +268,7 @@ void addLabelOffsetToContent(SectionsCollection *sectionsCollection, int offset,
 }
 
 void addDirectiveRelDataToSymbolTableList(SymbolTableEntryList *symbolTableEntryList, SectionsCollection *sectionsCollection,
-	char *label, enum SectionEnum section, int offset)
+	char *label, enum SectionsEnum section, int offset)
 {
 	if (!labelExists(symbolTableEntryList, label))
 	{
@@ -277,7 +279,7 @@ void addDirectiveRelDataToSymbolTableList(SymbolTableEntryList *symbolTableEntry
 	}
 }
 
-void handleLabelInCharWordLongDirectives(SectionsCollection *sectionsCollection, int directiveSizeInBytes, enum SectionEnum section, int labelNum)
+void handleLabelInCharWordLongDirectives(SectionsCollection *sectionsCollection, int directiveSizeInBytes, enum SectionsEnum section, int labelNum)
 {
 	/*if (sectionsCollection->currentSection != section)
 	{*/

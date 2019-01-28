@@ -1,48 +1,51 @@
 ###                    Tabela simbola                     ###
 
 Naziv      Sekcija    Vrednost    Tip Sekcije     Redni Broj
-.data      .data         0           local            0         
-mbegin     .data         0           local            1         
-mbound     .data         4           local            2         
-mdata      .data         8           local            3         
-mend       .data         22          local            4         
-output     .data         25          local            5         
-.text      .text         0           local            6         
-main       .text         0           global           7         
-print      .text         22          global           8         
-loop       .text         46          local            9         
-exit       .text         76          local            10        
-printf     unknown       -1          global           11        
+.data      .data      00000000       local            0         
+mbegin     .data      00000000       local            1         
+mbound     .data      00000004       local            2         
+mdata      .data      00000008       local            3         
+mend       .data      00000016       local            4         
+output     .data      00000019       local            5         
+.text      .text      00000000       local            6         
+main       .text      00000000       global           7         
+print      .text      00000016       global           8         
+loop       .text      0000002e       local            9         
+exit       .text      00000050       local            10        
+printf     unknown    ffffffff       global           11        
 
 
 ###  Relokacioni zapisi za .text sekciju  ###
 
-Ofset        Tip           Vrednost    
-4          R_386_16            0           
-8          R_386_16            0           
-36         R_386_16            0           
-58         R_386_16            11          
+Ofset           Tip           Vrednost    
+00000004      R_386_16            0           
+00000008      R_386_16            0           
+00000024      R_386_16            0           
+0000003a      R_386_16            11          
+0000004e      R_386_PC16          0           
 
 
 ###  Sadrzaj .text sekcije  ###
 
-07 42   37 c2   00 00   37 c2 
-00 00   27 02   27 02   2f 00 
-00 00   03 02   00 00   27 02 
-27 02   27 02   27 02   27 02 
-07 42   37 c2   00 00   37 c2 
-00 00   37 c2   00 00   13 42 
-34 02   07 42   37 c2   00 00 
-37 c2   00 00   27 02   27 02 
-2f 00   00 00   03 02   00 00 
-27 02   27 02   27 02   27 02 
-27 02   07 42   37 c2   00 00 
-37 c2   00 00   37 c2   00 00 
-13 42   34 02   
+07 42   77 c2   00 00   b7 c2 
+04 00   a7 02   67 02   2f 00 
+00 00   c3 03   04 00   27 02 
+67 02   a7 02   e7 02   27 03 
+07 42   b7 c2   19 00   f7 f2 
+0e 00   37 f3   0c 00   13 5b 
+f4 03   07 42   77 c2   00 00 
+b7 c2   04 00   a7 02   67 02 
+2f 00   00 00   c3 03   04 00 
+27 02   67 02   a7 02   e7 02 
+27 03   07 42   b7 c2   19 00 
+f7 f2   0e 00   37 f3   0c 00 
+13 5b   f4 03   
 
 ###  Relokacioni zapisi za .data sekciju  ###
 
-Ofset        Tip           Vrednost    
+Ofset           Tip           Vrednost    
+00000000      R_386_32            3           
+00000004      R_386_32            4           
 
 
 ###  Sadrzaj .data sekcije  ###

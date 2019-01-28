@@ -1,9 +1,9 @@
-#include "sections.h"
-#include "helpers.h"
-#include "parser_first.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "sections.h"
+#include "helpers.h"
+#include "parser_first.h"
 #include "parser_second.h"
 #include "section_helpers.h"
 #include "string_helpers.h"

@@ -1,4 +1,6 @@
 #include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include "instructions.h"
 #include "parser_helpers.h"
 #include "constants.h"
@@ -385,7 +387,7 @@ void processOneOperandInstructions(InstructionData *instructionData, SymbolTable
 		}
 		else
 		{
-			strcpy(additionalValue, operand, length);
+			strcpy(additionalValue, operand);
 			processLabelValue(additionalValue, instructionData, symbolTableEntryList, sectionsCollection, 0);
 		}
 		free(additionalValue);
@@ -546,7 +548,7 @@ int addOperandToContent(InstructionData *instructionData, int content, char oper
 }
 
 int addNewRelDataToSymbolTableList(SymbolTableEntryList *symbolTableEntryList, SectionsCollection *sectionsCollection,
-	char *label, enum SectionEnum section, int offset)
+	char *label, enum SectionsEnum section, int offset)
 {
 	char *newLabel = NULL;
 	int num = -1;

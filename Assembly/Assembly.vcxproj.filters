@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Tests">
+      <UniqueIdentifier>{7e629ddc-76d4-4d86-a884-46519d8c73fc}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="constants.h">
@@ -100,9 +103,17 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="test_hi.s" />
-    <None Include="test_hw.s" />
-    <None Include="test_1.s" />
-    <None Include="test_rel.s" />
+    <None Include="test_1.s">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="test_hi.s">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="test_hw.s">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="test_rel.s">
+      <Filter>Tests</Filter>
+    </None>
   </ItemGroup>
 </Project>

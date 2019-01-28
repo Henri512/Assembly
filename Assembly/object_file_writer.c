@@ -1,8 +1,10 @@
 #include <stdio.h>
+#include <string.h>
 #include "sections.h"
 #include "object_file_writer.h"
 #include "parser_helpers.h"
 #include "constants.h"
+#include "string_helpers.h"
 
 
 void writeDataToFile(SectionsCollection *sectionsCollection, SymbolTableEntryList *symbolTableEntryList, char *inputFileName)

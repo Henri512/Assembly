@@ -141,7 +141,7 @@ void addLabelToSymbolTableList(SymbolTableEntryList *symbolTableEntryList, Secti
 	addSymbolTableEntry(symbolTableEntryList, newSymbolTableEntry);
 }
 
-void parseDirective(SymbolTableEntry *symbolTableList, SectionsCollection *sectionsCollection, char *token)
+void parseDirective(SymbolTableEntryList *symbolTableList, SectionsCollection *sectionsCollection, char *token)
 {
 	if (startsWith(GLOBALDIRECTIVE, token))
 	{

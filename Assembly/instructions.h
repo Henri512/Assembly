@@ -5,7 +5,7 @@
 
 typedef struct instructionData
 {
-	enum Instructions opCode;
+	enum OpCodes opCode;
 	enum ConditionCodes condition;
 	char byteCount;
 	char *name;
@@ -40,4 +40,4 @@ void processLabelValue(char *labelValue, InstructionData *instructionData, Symbo
 
 int addOperandToContent(InstructionData *instructionData, int content, char operandIndex);
 
-int addNewRelDataToSymbolTableList(SymbolTableEntryList *symbolTableEntryList, SectionsCollection *sectionsCollection, char * label, enum SectionEnum section, int offset);
+int addNewRelDataToSymbolTableList(SymbolTableEntryList *symbolTableEntryList, SectionsCollection *sectionsCollection, char * label, enum SectionsEnum section, int offset);

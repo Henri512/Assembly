@@ -1,4 +1,6 @@
 #include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
 #include "parser_second.h"
 #include "section_helpers.h"
 #include "sections.h"

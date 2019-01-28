@@ -17,13 +17,17 @@ void parseGlobalDirective(char *token, SymbolTableEntryList *symbolTableEntryLis
 
 void parseCharWordLongDirectivesSP(SymbolTableEntryList *symbolTableEntryList, char *token, SectionsCollection *sectionsCollection, char size, char *oldLabel);
 
+void parseAlignDirectiveSP(char *token, SectionsCollection *sectionsCollection);
+
+void parseSkipDirectiveSP(char *token, SectionsCollection *sectionsCollection);
+
 void validateAndAddCWLDirectiveContent(SectionsCollection *sectionsCollection, char *directiveValue, char size, int length);
 
 void addLabelOffsetToContent(SectionsCollection *sectionsCollection, int offset, char size);
 
-void addDirectiveRelDataToSymbolTableList(SymbolTableEntryList *symbolTableEntryList, SectionsCollection *sectionsCollection, char *label, enum SectionEnum section, int offset);
+void addDirectiveRelDataToSymbolTableList(SymbolTableEntryList *symbolTableEntryList, SectionsCollection *sectionsCollection, char *label, enum SectionsEnum section, int offset);
 
-void handleLabelInCharWordLongDirectives(SectionsCollection *sectionsCollection, int directiveSizeInBytes, enum SectionEnum section, int labelNum);
+void handleLabelInCharWordLongDirectives(SectionsCollection *sectionsCollection, int directiveSizeInBytes, enum SectionsEnum section, int labelNum);
 
 void addLabelToContent(SectionsCollection *sectionsCollection, int offset, char size);
 

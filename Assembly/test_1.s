@@ -12,13 +12,6 @@ output: .long 0xFFFE	# adresa za stampanje na standardni izlaz
 
 .text
 main:				# pocetak programa
-	#jmp *50
-	#jmp r7[mend]
-	#ret 1
-	#call r4[mdata]
-	#push &mdata
-	#pop r0
-	#push &unknown
 	sub r0, r0		# r0 = 0
 	mov r1, r0[mbegin]	# r1 = mdata, pocetak niza za ispis
 	mov r2, r0[mbound]	# r2 = mend, kraj niza za ispis
@@ -50,6 +43,7 @@ loop:
 	mov r1, &psw	
 	mov_ne r1, r2
 	mov_gt r3, r4
+	jmp_gt $mend	# primer za pc relativno adresiranje
 
 exit:	
 	pop r4		# skidanje starih vrednosti registara sa steka
@@ -60,5 +54,3 @@ exit:
 	ret			    # povratak iz funkcije
 
 .end
-
-mov r1, psw			# 00 1101 01 001 00 111

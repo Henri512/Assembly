@@ -1,6 +1,8 @@
-#include "sections.h"
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
+#include "sections.h"
+
 
 // SymbolTableEntry methods
 SymbolTableEntry* makeSymbolTableEntry(char* name, char section, int offset)
