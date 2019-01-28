@@ -119,7 +119,6 @@
     <ClInclude Include="constants.h" />
     <ClInclude Include="constants_helper.h" />
     <ClInclude Include="directives.h" />
-    <ClInclude Include="file_reader.h" />
     <ClInclude Include="helpers.h" />
     <ClInclude Include="instructions.h" />
     <ClInclude Include="instruction_helpers.h" />
@@ -130,13 +129,11 @@
     <ClInclude Include="sections.h" />
     <ClInclude Include="section_helpers.h" />
     <ClInclude Include="string_helpers.h" />
-    <ClInclude Include="string_model.h" />
     <ClInclude Include="symbol_table.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="constants_helper.c" />
     <ClCompile Include="directives.c" />
-    <ClCompile Include="file_reader.c" />
     <ClCompile Include="helpers.c" />
     <ClCompile Include="instructions.c" />
     <ClCompile Include="instruction_helpers.c" />
@@ -148,7 +145,6 @@
     <ClCompile Include="sections.c" />
     <ClCompile Include="section_helpers.c" />
     <ClCompile Include="string_helpers.c" />
-    <ClCompile Include="string_model.c" />
   </ItemGroup>
   <ItemGroup>
     <None Include="test_1.s" />
