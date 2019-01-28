@@ -99,9 +99,9 @@ void writeContentEntry(SectionContent *content, FILE *file)
 	SectionContent *currentContent = content;
 	while (currentContent)
 	{
-		for (i = 0; i < content->count; i++)
+		for (i = 0; i < currentContent->count; i++)
 		{
-			fprintf(file, "%02x ", content->content[i] & 0xFF);
+			fprintf(file, "%02x ", currentContent->content[i] & 0xFF);
 			if (global && (global % 2 == 0) && !(global % 8 == 0))
 			{
 				fprintf(file, "  ");
