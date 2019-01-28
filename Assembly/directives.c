@@ -7,6 +7,7 @@
 #include "string_helpers.h"
 #include "section_helpers.h"
 #include "instruction_helpers.h"
+#include "constants_helper.h"
 
 // First Pass
 void parseExternDirective(char *token, SectionsCollection *sectionsCollection, SymbolTableEntryList *symbolTableEntryList)
@@ -102,7 +103,7 @@ void parseCharWordLongDirectivesSP(SymbolTableEntryList *symbolTableEntryList, c
 {
 	TokenList *tokenList = getInstructionsTokens(token);
 	SymbolTableEntry *entry = NULL, *sectionSymbol = NULL;
-	int i, valueLength = 0, byteCount = 0;
+	int i, valueLength = 0, byteCount = 0, offset = 0;;
 	for (i = 1; i < tokenList->size; i++)
 	{
 		char *directiveValue = rightTrim(tokenList->tokens[i], ",\'");
@@ -118,13 +119,14 @@ void parseCharWordLongDirectivesSP(SymbolTableEntryList *symbolTableEntryList, c
 				int offset = getCurrentOffset(sectionsCollection);
 				sectionSymbol = getSymbolByName(symbolTableEntryList, getSectionValue(entry->section));
 				addNewRelocationData(sectionsCollection, entry->section, offset, ABS, sectionSymbol->num);
+				free(oldLabel);
 			}
 			else
 			{
 				handleLabelInCharWordLongDirectives(sectionsCollection, size, entry->section, entry->num, oldLabel);
 			}
-
-			addLabelOffsetToContent(sectionsCollection, entry->offset, size);
+			offset = sectionsCollection->currentSection != entry->section ? 0 : entry->offset;
+			addLabelOffsetToContent(sectionsCollection,offset, size);
 		}
 		else
 		{
@@ -277,18 +279,18 @@ void addDirectiveRelDataToSymbolTableList(SymbolTableEntryList *symbolTableEntry
 
 void handleLabelInCharWordLongDirectives(SectionsCollection *sectionsCollection, int directiveSizeInBytes, enum SectionEnum section, int labelNum)
 {
-	if (sectionsCollection->currentSection != section)
+	/*if (sectionsCollection->currentSection != section)
+	{*/
+	int offset = getCurrentOffset(sectionsCollection);
+	char relocationType = CHARDIR;
+	if (directiveSizeInBytes == WORDSIZE)
 	{
-		int offset = getCurrentOffset(sectionsCollection);
-		char relocationType = CHARDIR;
-		if (directiveSizeInBytes == WORDSIZE)
-		{
-			relocationType++;
-		}
-		else if (directiveSizeInBytes == LONGSIZE)
-		{
-			relocationType += 2;
-		}
-		addNewRelocationData(sectionsCollection, section, offset, relocationType, labelNum);
+		relocationType++;
 	}
+	else if (directiveSizeInBytes == LONGSIZE)
+	{
+		relocationType += 2;
+	}
+	addNewRelocationData(sectionsCollection, section, offset, relocationType, labelNum);
+	/*}*/
 }

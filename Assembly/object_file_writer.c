@@ -64,7 +64,7 @@ void writeSymbolTableEntry(SymbolTableEntry *entry, FILE *file)
 		sectionType = "unknown";
 		break;
 	}
-	fprintf(file, "%-11s%-14s%-12d%-17s%-10d\n", entry->name, Sections[entry->section], entry->offset, sectionType, entry->num);
+	fprintf(file, "%-11s%-11s%08x%-7s%-17s%-10d\n", entry->name, Sections[entry->section], entry->offset, " ", sectionType, entry->num);
 }
 
 void writeSectionToFile(SectionData *sectionData, FILE *file)

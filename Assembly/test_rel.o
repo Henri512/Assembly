@@ -1,14 +1,14 @@
 ###                    Tabela simbola                     ###
 
 Naziv      Sekcija    Vrednost    Tip Sekcije     Redni Broj
-b          unknown       0           global           0         
-.text      .text         0           local            1         
-d          .text         16          local            2         
-.data      .data         0           local            3         
-e          .data         8           local            4         
-a          .data         20          global           5         
-.bss       .bss          0           local            6         
-c          .bss          0           global           7         
+b          unknown    00000000       global           0         
+.text      .text      00000000       local            1         
+d          .text      00000010       local            2         
+.data      .data      00000000       local            3         
+e          .data      00000008       local            4         
+a          .data      00000014       global           5         
+.bss       .bss       00000000       local            6         
+c          .bss       00000000       global           7         
 
 
 ###  Relokacioni zapisi za .text sekciju  ###
@@ -34,6 +34,7 @@ c0 03   fe ff   c0 03   00 00
 ###  Relokacioni zapisi za .data sekciju  ###
 
 Ofset           Tip           Vrednost    
+00000008      R_386_32            5           
 0000000c      R_386_32            7           
 00000010      R_386_32            6           
 00000014      R_386_32            0           
