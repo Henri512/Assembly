@@ -1,5 +1,5 @@
-Asembler:
-Priloženi izvršni program, izvorni kod i testovi predstavljaju realizaciju asemblerskog dela projektnog zadatka iz sistemskog softvera za februar 2019. godine.
+                                                  Dvoprolazni asembler
+
 Zadatak je zahtevao da se napravi dvoprolazni asembler za procesor opisan u postavci zadatka.
 Rešenje je realizovano u potpunosti na programskom jeziku C. Izvorni kod je podeljen u nekoliko .c i .h datoteka koje obavljaju glavne stvari, parsiranje, citanje i upis generisanog koda u fajl kao i nekoliko .c i .h fajlova koji služe kao pomoć pri nekim često ponavljanim operacijama (_helpers fajlovi).
 Lista svih datoteka:
