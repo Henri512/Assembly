@@ -38,6 +38,6 @@ void processIRetInstruction(InstructionData *instructionData, SymbolTableEntryLi
 
 void processLabelValue(char *labelValue, InstructionData *instructionData, SymbolTableEntryList *symbolTableEntryList, SectionsCollection *sectionsCollection, char isPcRelAddr);
 
-void addOperandToContent(InstructionData *instructionData, int content, char operandIndex);
+int addOperandToContent(InstructionData *instructionData, int content, char operandIndex);
 
 int addNewRelDataToSymbolTableList(SymbolTableEntryList *symbolTableEntryList, SectionsCollection *sectionsCollection, char * label, enum SectionEnum section, int offset);

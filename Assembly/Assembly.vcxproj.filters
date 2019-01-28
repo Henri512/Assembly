@@ -60,6 +60,9 @@
     <ClInclude Include="instruction_helpers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="object_file_writer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="file_reader.c">
@@ -102,6 +105,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="instruction_helpers.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="object_file_writer.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

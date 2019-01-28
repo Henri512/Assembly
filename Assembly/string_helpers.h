@@ -15,3 +15,5 @@ char getCharFromDirectiveValue(char *directive);
 void printBinaryChar(char c);
 
 char *getNewString(int size);
+
+char *replaceChar(char *str, char find, char replace);

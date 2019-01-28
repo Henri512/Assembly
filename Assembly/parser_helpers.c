@@ -7,12 +7,25 @@
 FILE *getInputFile(char *filePath)
 {
 	FILE *fp = NULL;
-	const size_t line_size = 100;
-	char *line = (char*)malloc(line_size);
 
 	fp = fopen(filePath, "r");
 	if (fp == NULL)
 	{
+		printf("Greska pri otvaranju fajla %s za citanje", filePath);
+		exit(-1);
+	}
+
+	return fp;
+}
+
+FILE *getOutputFile(char *filePath)
+{
+	FILE *fp = NULL;
+
+	fp = fopen(filePath, "w");
+	if (fp == NULL)
+	{
+		printf("Greska pri otvaranju fajla %s za pisanje", filePath);
 		exit(-1);
 	}
 

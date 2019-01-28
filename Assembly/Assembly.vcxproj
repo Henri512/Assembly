@@ -123,6 +123,7 @@
     <ClInclude Include="helpers.h" />
     <ClInclude Include="instructions.h" />
     <ClInclude Include="instruction_helpers.h" />
+    <ClInclude Include="object_file_writer.h" />
     <ClInclude Include="parser_helpers.h" />
     <ClInclude Include="parser_first.h" />
     <ClInclude Include="parser_second.h" />
@@ -140,6 +141,7 @@
     <ClCompile Include="instructions.c" />
     <ClCompile Include="instruction_helpers.c" />
     <ClCompile Include="main.c" />
+    <ClCompile Include="object_file_writer.c" />
     <ClCompile Include="parser_helpers.c" />
     <ClCompile Include="parser_first.c" />
     <ClCompile Include="parser_second.c" />

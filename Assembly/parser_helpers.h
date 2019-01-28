@@ -19,6 +19,8 @@ char isTokenEmptyLine(char *token);
 
 FILE *getInputFile(char *filePath);
 
+FILE *getOutputFile(char *filePath);
+
 TokenList *getInstructionsTokens(char *token);
 
 void freeTokenList(TokenList *tokenList);

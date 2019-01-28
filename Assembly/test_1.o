@@ -1,0 +1,87 @@
+###                    Tabela simbola                     ###
+
+Naziv      Sekcija    Vrednost    Tip Sekcije     Redni Broj
+.data      .data         0           local            0         
+mbegin     .data         0           local            1         
+mbound     .data         4           local            2         
+mdata      .data         8           local            3         
+mend       .data         22          local            4         
+output     .data         25          local            5         
+.text      .text         0           local            6         
+main       .text         0           global           7         
+print      .text         22          global           8         
+loop       .text         46          local            9         
+exit       .text         76          local            10        
+printf     unknown       -1          global           11        
+
+
+###  Relokacioni zapisi za .text sekciju  ###
+
+Ofset        Tip           Vrednost    
+4          R_386_16            0           
+8          R_386_16            0           
+36         R_386_16            0           
+58         R_386_16            11          
+
+
+###  Sadrzaj .text sekcije  ###
+
+07 42   37 c2   00 00   37 c2 
+00 00   27 02   27 02   2f 00 
+00 00   03 02   00 00   27 02 
+27 02   27 02   27 02   27 02 
+07 42   37 c2   00 00   37 c2 
+00 00   37 c2   00 00   13 42 
+34 02   07 42   37 c2   00 00 
+37 c2   00 00   27 02   27 02 
+2f 00   00 00   03 02   00 00 
+27 02   27 02   27 02   27 02 
+27 02   07 42   37 c2   00 00 
+37 c2   00 00   37 c2   00 00 
+13 42   34 02   
+
+###  Relokacioni zapisi za .data sekciju  ###
+
+Ofset        Tip           Vrednost    
+
+
+###  Sadrzaj .data sekcije  ###
+
+08 00   00 00   16 00   00 00 
+48 65   6c 6c   6f 2c   20 77 
+6f 72   6c 64   2e 0a   00 00 
+00 fe   ff 00   00 00   00 00 
+00 00   00 00   00 00   00 00 
+00 00   00 00   00 00   00 00 
+00 00   08 00   00 00   16 00 
+00 00   48 65   6c 6c   6f 2c 
+20 77   6f 72   6c 64   2e 0a 
+00 00   00 fe   ff 00   00 00 
+00 00   00 00   00 00   00 00 
+00 00   00 00   00 00   00 00 
+00 00   00 00   08 00   00 00 
+16 00   00 00   48 65   6c 6c 
+6f 2c   20 77   6f 72   6c 64 
+2e 0a   00 00   00 fe   ff 00 
+00 00   00 00   00 00   00 00 
+00 00   00 00   00 00   00 00 
+00 00   00 00   00 00   08 00 
+00 00   16 00   00 00   48 65 
+6c 6c   6f 2c   20 77   6f 72 
+6c 64   2e 0a   00 00   00 fe 
+ff 00   00 00   00 00   00 00 
+00 00   00 00   00 00   00 00 
+00 00   00 00   00 00   00 00 
+08 00   00 00   16 00   00 00 
+48 65   6c 6c   6f 2c   20 77 
+6f 72   6c 64   2e 0a   00 00 
+00 fe   ff 00   00 00   00 00 
+00 00   00 00   00 00   00 00 
+00 00   00 00   00 00   00 00 
+00 00   08 00   00 00   16 00 
+00 00   48 65   6c 6c   6f 2c 
+20 77   6f 72   6c 64   2e 0a 
+00 00   00 fe   ff 00   00 00 
+00 00   00 00   00 00   00 00 
+00 00   00 00   00 00   00 00 
+00 00   00 00   

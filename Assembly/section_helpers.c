@@ -124,9 +124,9 @@ char getTokenInstructionValue(char *token)
 		}
 		else if (startsWith(Instructions[i], instruction))
 		{
-			if (!strcmp(instruction + length - 3, "_eq") ||
-				!strcmp(instruction + length - 3, "_ne") ||
-				!strcmp(instruction + length - 3, "_gt"))
+			if (!strncmp(instruction + length - 3, "_eq", 3) ||
+				!strncmp(instruction + length - 3, "_ne", 3) ||
+				!strncmp(instruction + length - 3, "_gt", 3))
 			{
 				result = i;
 			}
@@ -144,7 +144,7 @@ char getTokenInstructionValue(char *token)
 char *getInstructionFromToken(char *token)
 {
 	int i = 0;
-	while (token[i] != ' ')
+	while (token[i] != ' ' && token[i] != '\t')
 	{
 		i++;
 	}
@@ -301,8 +301,6 @@ void addIntContentToCurrentSection(SectionsCollection *sectionsCollection, int c
 	char secondByte = (char)(content >> 8) & 0xff;
 	char thirdByte = (char)(content >> 16) & 0xff;
 	char fourthByte = (char)(content >> 24) & 0xff;
-	// printBinaryChar(firstByte);
-	// printBinaryChar(secondByte);
 	addCharContentToCurrentSection(sectionsCollection, firstByte);
 	addCharContentToCurrentSection(sectionsCollection, secondByte);
 	addCharContentToCurrentSection(sectionsCollection, thirdByte);
@@ -313,8 +311,6 @@ void addWordContentToCurrentSection(SectionsCollection *sectionsCollection, int 
 {
 	char firstByte = (char)content & 0xff;
 	char secondByte = (char)(content >> 8) & 0xff;
-	// printBinaryChar(firstByte);
-	// printBinaryChar(secondByte);
 	addCharContentToCurrentSection(sectionsCollection, firstByte);
 	addCharContentToCurrentSection(sectionsCollection, secondByte);
 }

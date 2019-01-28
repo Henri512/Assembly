@@ -105,3 +105,12 @@ char *getNewString(int size)
 	}
 	return newString;
 }
+
+char* replaceChar(char* str, char find, char replace) {
+	char *currentPos = strchr(str, find);
+	while (currentPos) {
+		*currentPos = replace;
+		currentPos = strchr(currentPos, find);
+	}
+	return str;
+}

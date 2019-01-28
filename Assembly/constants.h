@@ -32,7 +32,7 @@
 #define ADRLOCWILDCARD '*'
 #define PCRELINDWILDCARD '$'
 
-#define UNKNOWNLABELOFFSET 127
+#define UNKNOWNLABELOFFSET -1
 
 static const char *Instructions[] = { "add", "sub", "mul", "div", "cmp", "and", "or", "not", "test", "push", "pop", "call", "iret", "mov", "shl", "shr", "ret", "jmp" };
 
@@ -44,7 +44,7 @@ static const char *RelocationTypes[] = { "R_386_PC16", "R_386_16", "R_386_8", "R
 
 enum SectionType { Local, Global };
 
-enum SectionsEnum { Text, Data, RoData, Bss, Unknown = 127 };
+enum SectionsEnum { Text, Data, RoData, Bss, Unknown };
 
 enum OpCodes { Add, Sub, Mul, Div, Cmp, And, Or, Not, Test, Push, Pop, Call, Iret, Mov, Shl, Shr, Ret, Jmp };
 

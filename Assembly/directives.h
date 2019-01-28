@@ -15,7 +15,7 @@ void parseSkipDirective(char *token, SectionsCollection *sectionsCollection);
 
 void parseGlobalDirective(char *token, SymbolTableEntryList *symbolTableEntryList);
 
-void parseCharWordLongDirectivesSP(SymbolTableEntryList *symbolTableEntryList, char *token, SectionsCollection *sectionsCollection, char size);
+void parseCharWordLongDirectivesSP(SymbolTableEntryList *symbolTableEntryList, char *token, SectionsCollection *sectionsCollection, char size, char *oldLabel);
 
 void validateAndAddCWLDirectiveContent(SectionsCollection *sectionsCollection, char *directiveValue, char size, int length);
 

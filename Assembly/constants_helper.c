@@ -18,6 +18,9 @@ char *getSectionValue(enum SectionsEnum section)
 	case Bss:
 		value = ".bss";
 		break;
+	case Unknown:
+		value = "unknown";
+		break;
 	default:
 		value = "Not Found!";
 		break;

@@ -98,23 +98,32 @@ void parseGlobalDirective(char *token, SymbolTableEntryList *symbolTableEntryLis
 	freeTokenList(tokenList);
 }
 
-void parseCharWordLongDirectivesSP(SymbolTableEntryList *symbolTableEntryList, char *token, SectionsCollection *sectionsCollection, char size)
+void parseCharWordLongDirectivesSP(SymbolTableEntryList *symbolTableEntryList, char *token, SectionsCollection *sectionsCollection, char size, char *oldLabel)
 {
 	TokenList *tokenList = getInstructionsTokens(token);
-	SymbolTableEntry *entry = NULL;
+	SymbolTableEntry *entry = NULL, *sectionSymbol = NULL;
 	int i, valueLength = 0, byteCount = 0;
 	for (i = 1; i < tokenList->size; i++)
 	{
 		char *directiveValue = rightTrim(tokenList->tokens[i], ",\'");
 		directiveValue = leftTrim(tokenList->tokens[i], "\'");
 		valueLength = strlen(directiveValue);
-		entry = getEntryByLabelName(symbolTableEntryList, directiveValue);
+		entry = getEntryByLabelName(symbolTableEntryList, directiveValue[0] == '&' ? directiveValue + 1 : directiveValue);
 		// ako se referencira labela u direktivi proveravamo da li je potrebno dodati realokacioni zapis
 		if (entry)
 		{
-			handleLabelInCharWordLongDirectives(sectionsCollection, size, entry->section, entry->num);
-			// addDirectiveRelDataToSymbolTableList(symbolTableEntryList, sectionsCollection, entry->name,
-				// entry->section, entry->sectionType == Global ? 1: entry->offset);
+			// slucaj kada labela samu sebe referencira, d: .long &d
+			if (oldLabel && !strcmp(entry->name, oldLabel))
+			{
+				int offset = getCurrentOffset(sectionsCollection);
+				sectionSymbol = getSymbolByName(symbolTableEntryList, getSectionValue(entry->section));
+				addNewRelocationData(sectionsCollection, entry->section, offset, ABS, sectionSymbol->num);
+			}
+			else
+			{
+				handleLabelInCharWordLongDirectives(sectionsCollection, size, entry->section, entry->num, oldLabel);
+			}
+
 			addLabelOffsetToContent(sectionsCollection, entry->offset, size);
 		}
 		else

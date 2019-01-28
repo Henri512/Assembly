@@ -21,6 +21,7 @@ void executeSecondPass(SymbolTableEntryList *symbolTableEntryList, SectionsColle
 	while (fgets(line, line_size, inputFile) != NULL)
 	{
 		char *token = getTokenFromLine(line);
+		token = replaceChar(token, '\t', ' ');
 		if (!isTokenComment(token) && !isTokenEmptyLine(token))
 		{
 			if (isEndToken(token))
@@ -35,7 +36,7 @@ void executeSecondPass(SymbolTableEntryList *symbolTableEntryList, SectionsColle
 			}
 			printf("In %s section:\n\r", getSectionValue(sectionsCollection->currentSection));
 
-			parseTokenSecondPass(symbolTableEntryList, sectionsCollection, token);
+			parseTokenSecondPass(symbolTableEntryList, sectionsCollection, token, NULL);
 		}
 	}
 
@@ -46,7 +47,7 @@ void executeSecondPass(SymbolTableEntryList *symbolTableEntryList, SectionsColle
 	}
 }
 
-void *parseTokenSecondPass(SymbolTableEntryList *symbolTableEntryList, SectionsCollection *sectionsCollection, char *token)
+void parseTokenSecondPass(SymbolTableEntryList *symbolTableEntryList, SectionsCollection *sectionsCollection, char *token, char *oldLabel)
 {
 	char instructionValue, sectionValue;
 	if ((sectionValue = getTokenSectionValue(token)) > -1)
@@ -59,7 +60,7 @@ void *parseTokenSecondPass(SymbolTableEntryList *symbolTableEntryList, SectionsC
 	}
 	else if (isTokenDirective(token))
 	{
-		parseDirectiveSecondPass(symbolTableEntryList, sectionsCollection, token);
+		parseDirectiveSecondPass(symbolTableEntryList, sectionsCollection, token, oldLabel);
 	}
 	else if ((instructionValue = getTokenInstructionValue(token)) > -1)
 	{
@@ -71,7 +72,7 @@ void *parseTokenSecondPass(SymbolTableEntryList *symbolTableEntryList, SectionsC
 	}
 }
 
-void *parseLabelSecondPass(SymbolTableEntryList *symbolTableEntryList, SectionsCollection *sectionsCollection, char *token)
+void parseLabelSecondPass(SymbolTableEntryList *symbolTableEntryList, SectionsCollection *sectionsCollection, char *token)
 {
 	int labelLength = 0, tokenLength = strlen(token);
 
@@ -81,7 +82,10 @@ void *parseLabelSecondPass(SymbolTableEntryList *symbolTableEntryList, SectionsC
 		labelLength = strcspn(token, ":") + 1;
 		int labelTokenLength = tokenLength - labelLength + 1;
 
-		char *labelContentToken = (char*)malloc(labelTokenLength * sizeof(char));
+		char *labelContentToken = getNewString(labelTokenLength);
+		char *oldLabel = getNewString(labelLength);
+		strncpy(oldLabel, token, labelLength - 1);
+		oldLabel[labelLength - 1] = '\0';
 		if (labelContentToken == NULL)
 		{
 			printf("Greska u alokaciji memorije! Kraj izvrsavanja!\n\r");
@@ -90,15 +94,14 @@ void *parseLabelSecondPass(SymbolTableEntryList *symbolTableEntryList, SectionsC
 		strncpy(labelContentToken, token + labelLength, labelTokenLength);
 		labelContentToken[labelTokenLength - 1] = '\0';
 
-		labelContentToken = leftTrim(labelContentToken, "\t ");
 
-		
+		labelContentToken = leftTrim(labelContentToken, "\t ");		
 
-		parseTokenSecondPass(symbolTableEntryList, sectionsCollection, labelContentToken);
+		parseTokenSecondPass(symbolTableEntryList, sectionsCollection, labelContentToken, oldLabel);
 	}
 }
 
-void parseDirectiveSecondPass(SymbolTableEntryList *symbolTableEntryList, SectionsCollection *sectionsCollection, char *token)
+void parseDirectiveSecondPass(SymbolTableEntryList *symbolTableEntryList, SectionsCollection *sectionsCollection, char *token, char *oldLabel)
 {
 	if (startsWith(GLOBALDIRECTIVE, token))
 	{
@@ -106,15 +109,15 @@ void parseDirectiveSecondPass(SymbolTableEntryList *symbolTableEntryList, Sectio
 	}
 	else if (startsWith(CHARDIRECTIVE, token))
 	{
-		parseCharWordLongDirectivesSP(symbolTableEntryList, token, sectionsCollection, CHARSIZE);
+		parseCharWordLongDirectivesSP(symbolTableEntryList, token, sectionsCollection, CHARSIZE, oldLabel);
 	}
 	else if (startsWith(WORDDIRECTIVE, token))
 	{
-		parseCharWordLongDirectivesSP(symbolTableEntryList, token, sectionsCollection, WORDSIZE);
+		parseCharWordLongDirectivesSP(symbolTableEntryList, token, sectionsCollection, WORDSIZE, oldLabel);
 	}
 	else if (startsWith(LONGDIRECTIVE, token))
 	{
-		parseCharWordLongDirectivesSP(symbolTableEntryList, token, sectionsCollection, LONGSIZE);
+		parseCharWordLongDirectivesSP(symbolTableEntryList, token, sectionsCollection, LONGSIZE, oldLabel);
 	}
 	else if (startsWith(ALIGNDIRECTIVE, token))
 	{

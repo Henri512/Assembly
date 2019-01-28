@@ -187,7 +187,6 @@ void processOneOperand(InstructionData *instructionData, SymbolTableEntryList *s
 		free(additionalValue);
 		break;
 	case Mem:
-		additionalValue = getNewString(opLength);
 		// add *20, r5
 		if (op[0] == '*')
 		{
@@ -203,7 +202,8 @@ void processOneOperand(InstructionData *instructionData, SymbolTableEntryList *s
 		// add label, r5
 		else
 		{
-			strcpy(additionalValue, op, opLength);
+			additionalValue = getNewString(opLength + 1);
+			strcpy(additionalValue, op);
 			processLabelValue(additionalValue, instructionData, symbolTableEntryList, sectionsCollection, 0);
 		}
 		free(additionalValue);
@@ -494,12 +494,12 @@ void addInstructionToSectionContent(InstructionData *instructionData, SymbolTabl
 	if (hasFirstOperand)
 	{
 		content = content | ((instructionData->dstAddresingCode & 0x3) << 9);
-		addOperandToContent(instructionData, content, 0);
+		content = addOperandToContent(instructionData, content, 0);
 	}
 	if (hasSecondOperand)
 	{
 		content = content | ((instructionData->srcAddressingCode & 0x3) << 14);
-		addOperandToContent(instructionData, content, 1);
+		content = addOperandToContent(instructionData, content, 1);
 	}
 
 	if (instructionData->byteCount == 2)
@@ -512,7 +512,7 @@ void addInstructionToSectionContent(InstructionData *instructionData, SymbolTabl
 	}
 }
 
-void addOperandToContent(InstructionData *instructionData, int content, char operandIndex)
+int addOperandToContent(InstructionData *instructionData, int content, char operandIndex)
 {
 	char *operand = operandIndex == 0 ? instructionData->dst : instructionData->src;
 	enum AddressingCodes addrCode = operandIndex == 0 ? instructionData->dstAddresingCode : instructionData->srcAddressingCode;
@@ -542,6 +542,7 @@ void addOperandToContent(InstructionData *instructionData, int content, char ope
 		content = content | ((instructionData->additionalWord & 0xFFFF) << 16);
 		break;
 	}
+	return content;
 }
 
 int addNewRelDataToSymbolTableList(SymbolTableEntryList *symbolTableEntryList, SectionsCollection *sectionsCollection,

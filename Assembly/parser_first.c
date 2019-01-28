@@ -23,6 +23,7 @@ void executeFirstPass(SymbolTableEntryList *symbolTableEntryList, SectionsCollec
 	while (fgets(line, line_size, inputFile) != NULL)
 	{
 		char *token = getTokenFromLine(line);
+		token = replaceChar(token, '\t', ' ');
 		if (!isTokenComment(token) && !isTokenEmptyLine(token))
 		{
 			if (isEndToken(token))

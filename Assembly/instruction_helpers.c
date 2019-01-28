@@ -52,7 +52,7 @@ InstructionData *getNewInstructionData()
 		exit(-1);
 	}
 
-	instructionData->additionalWord = -1;
+	instructionData->additionalWord = 0;
 	instructionData->byteCount = 0;
 	instructionData->dst = NULL;
 	instructionData->src = NULL;
